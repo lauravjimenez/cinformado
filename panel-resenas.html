@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprobación de Reseñas - CInformado</title>
+        <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #F8F7F2; color: #4A4A4A; }
+        .card { background-color: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); }
+        .hidden { display: none !important; }
+        
+        /* Estrellas */
+        .star-filled { color: #F59E0B; } /* text-amber-500 */
+        .star-empty { color: #E5E7EB; } /* text-gray-200 */
+
+        /* Toast Notifications */
+        #toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 50; display: flex; flex-direction: column; gap: 0.5rem; }
+        .toast { padding: 1rem 1.5rem; border-radius: 0.5rem; color: white; font-weight: 600; font-size: 0.875rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); opacity: 0; transform: translateY(1rem); transition: all 0.3s ease; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast-success { background-color: #10B981; } /* Emerald 500 */
+        .toast-error { background-color: #EF4444; } /* Red 500 */
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col relative">
+
+    <!-- HEADER EXACTAMENTE IGUAL AL PORTAL PRINCIPAL -->
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-4">
+                <a href="portal-consentimientos.html" class="flex-shrink-0">
+                    <img src="logoprincipal.png" alt="Vincula Logo" class="h-10 w-auto" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iNDAiPjx0ZXh0IHk9IjIwIiBmb250LWZhbWlseT0iUG9wcGlucywgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMCIgZmlsbD0iIzAwMzM2NiI+TE9HTzwvdGV4dD48L3N2Zz4='">
+                </a>
+                <span class="border-l h-6 mx-2 hidden md:block border-gray-300"></span>
+                <a href="portal-consentimientos.html" class="text-sm font-medium text-gray-600 hover:text-[#3B4D4D] flex items-center transition-colors">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    Volver al Dashboard
+                </a>
+            </div>
+            
+            <div class="flex flex-wrap justify-center items-center gap-3">
+                <a href="portal-citas.html" class="flex items-center text-indigo-600 font-bold hover:text-indigo-800 transition-colors bg-indigo-50 px-4 py-2 rounded-full border border-indigo-200 shadow-sm text-sm">
+                    🗓️ Agenda
+                </a>
+                <a href="portal-pagos.html" class="flex items-center text-green-700 font-bold hover:text-green-900 transition-colors bg-green-50 px-4 py-2 rounded-full border border-green-200 shadow-sm text-sm">
+                    <span class="text-lg mr-1">$</span> Pagos
+                </a>
+                <a href="manual-usuario.html" class="flex items-center text-purple-700 font-bold hover:text-purple-900 transition-colors bg-purple-50 px-4 py-2 rounded-full border border-purple-200 shadow-sm text-sm">
+                    📖 Manual
+                </a>
+                
+                <!-- BOTÓN ACTIVO: Aprobar Reseñas -->
+                <a href="panel-resenas.html" class="flex items-center text-white font-bold bg-[#3B4D4D] px-4 py-2 rounded-full shadow-md text-sm transition-colors cursor-default">
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                    Aprobar Reseñas
+                </a>
+
+                <span class="border-l h-6 border-gray-300 hidden md:block"></span>
+                <button id="logoutButton" class="text-sm font-bold text-red-600 hover:text-red-800 transition-colors px-2">Cerrar Sesión</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-6 py-8 max-w-7xl relative">
+        
+        <!-- ENCABEZADO DE SECCIÓN -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4 border-b border-gray-200 pb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-[#3B4D4D] flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                    Testimonios y Reseñas
+                </h1>
+                <p class="text-sm text-gray-500 mt-2 max-w-2xl">
+                    Gestiona los testimonios de tus pacientes. Aprobar una reseña la hará visible en tu página comercial. Recuerda los principios de confidencialidad y la Ley 1090 antes de publicar.
+                </p>
+            </div>
+
+            <!-- FILTROS TIPO PESTAÑAS (Ajustado a mayúsculas para coincidir con backend) -->
+            <div class="flex bg-gray-100 p-1 rounded-xl shadow-inner border border-gray-200">
+                <button onclick="filterReviews('Pendiente')" id="btn-Pendiente" class="tab-btn px-4 py-2 rounded-lg text-sm font-bold bg-white text-[#3B4D4D] shadow-sm transition-all">
+                    Pendientes <span id="count-Pendiente" class="ml-1 bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs">0</span>
+                </button>
+                <button onclick="filterReviews('Aprobado')" id="btn-Aprobado" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold text-gray-500 hover:text-gray-800 transition-all">
+                    Aprobadas <span id="count-Aprobado" class="ml-1 bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full text-xs">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ESTADO DE CARGA -->
+        <div id="loading" class="text-center py-16">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-[#3B4D4D] mb-4"></div>
+            <p class="text-lg text-[#3B4D4D] font-semibold">Buscando testimonios...</p>
+        </div>
+
+        <!-- CONTENEDOR DE TARJETAS (GRID) -->
+        <div id="reviewsGrid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Renderizado dinámico por JS -->
+        </div>
+
+        <!-- ESTADO VACÍO -->
+        <div id="emptyState" class="hidden text-center py-20 bg-white rounded-2xl border border-dashed border-gray-300 mt-4 shadow-sm">
+            <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"></path></svg>
+            <p class="text-xl font-bold text-[#3B4D4D] mb-2" id="emptyTitle">No hay reseñas en esta categoría.</p>
+            <p class="text-sm text-gray-500">Envía solicitudes desde el portal de consentimientos para que tus pacientes dejen su testimonio.</p>
+        </div>
+
+    </main>
+
+    <!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN (Reemplazo de alert/confirm nativo) -->
+    <div id="deleteModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl transform transition-all">
+            <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <h3 class="text-lg font-bold text-center text-gray-900 mb-2">¿Eliminar esta reseña?</h3>
+            <p class="text-sm text-center text-gray-500 mb-6">Esta acción no se puede deshacer. El paciente no será notificado, pero el testimonio se borrará permanentemente de la base de datos.</p>
+            <div class="flex gap-3">
+                <button onclick="closeDeleteModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">Cancelar</button>
+                <button id="confirmDeleteBtn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors flex justify-center items-center">
+                    <span id="deleteBtnText">Eliminar</span>
+                    <div id="deleteSpinner" class="hidden animate-spin rounded-full h-4 w-4 border-b-2 border-white ml-2"></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR DE NOTIFICACIONES TOAST -->
+    <div id="toast-container"></div>
+
+    <script>
+        // Variables globales para almacenar las reseñas y estado
+        let allReviews = [];
+        let currentFilter = 'Pendiente'; // Sincronizado con backend
+        let reviewToDeleteId = null;
+
+        // URL base de la API (Ajustar según entorno, Vercel/NextJS suele ser /api/...)
+        const API_BASE_URL = '/api/reviews';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Protección de ruta local
+            if (sessionStorage.getItem('consultorAuth') !== 'true') {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            document.getElementById('logoutButton').addEventListener('click', () => {
+                sessionStorage.removeItem('consultorAuth');
+                window.location.href = 'login.html';
+            });
+
+            // Cargar datos reales desde la API
+            fetchReviews();
+        });
+
+        // Utilidad: Mostrar notificaciones elegantes
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            
+            container.appendChild(toast);
+            
+            // Trigger animación
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            // Remover después de 3s
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Función para generar las estrellas visualmente
+        function generateStarsHTML(rating) {
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    html += `<svg class="w-5 h-5 star-filled" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>`;
+                } else {
+                    html += `<svg class="w-5 h-5 star-empty" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>`;
+                }
+            }
+            return html;
+        }
+
+        const formatDate = (isoString) => {
+            if (!isoString) return '';
+            try {
+                const date = new Date(isoString);
+                return date.toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' });
+            } catch (e) { return isoString; }
+        };
+
+        // Petición GET real al backend
+        async function fetchReviews() {
+            try {
+                document.getElementById('loading').classList.remove('hidden');
+                document.getElementById('reviewsGrid').classList.add('hidden');
+                document.getElementById('emptyState').classList.add('hidden');
+
+                const response = await fetch(`${API_BASE_URL}?action=getAllAdmin`);
+                
+                if (!response.ok) {
+                    throw new Error('Error al obtener datos del servidor');
+                }
+                
+                allReviews = await response.json();
+                
+                document.getElementById('loading').classList.add('hidden');
+                updateCounts();
+                renderReviews();
+
+            } catch (error) {
+                console.error("Error al cargar reseñas:", error);
+                document.getElementById('loading').innerHTML = `
+                    <div class="text-red-600 flex flex-col items-center">
+                        <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span class="font-bold">Error cargando los testimonios.</span>
+                        <p class="text-sm mt-2 text-gray-500">${error.message}</p>
+                    </div>`;
+            }
+        }
+
+        function filterReviews(status) {
+            currentFilter = status;
+            
+            // Actualizar UI de los botones (Pestañas)
+            const btnPendiente = document.getElementById('btn-Pendiente');
+            const btnAprobado = document.getElementById('btn-Aprobado');
+
+            if (status === 'Pendiente') {
+                btnPendiente.className = "tab-btn px-4 py-2 rounded-lg text-sm font-bold bg-white text-[#3B4D4D] shadow-sm transition-all";
+                btnAprobado.className = "tab-btn px-4 py-2 rounded-lg text-sm font-semibold text-gray-500 hover:text-gray-800 transition-all";
+            } else {
+                btnAprobado.className = "tab-btn px-4 py-2 rounded-lg text-sm font-bold bg-white text-[#3B4D4D] shadow-sm transition-all";
+                btnPendiente.className = "tab-btn px-4 py-2 rounded-lg text-sm font-semibold text-gray-500 hover:text-gray-800 transition-all";
+            }
+
+            renderReviews();
+        }
+
+        function updateCounts() {
+            const pendientes = allReviews.filter(r => r.estado === 'Pendiente').length;
+            const aprobadas = allReviews.filter(r => r.estado === 'Aprobado').length;
+            
+            document.getElementById('count-Pendiente').textContent = pendientes;
+            document.getElementById('count-Aprobado').textContent = aprobadas;
+        }
+
+        function renderReviews() {
+            const grid = document.getElementById('reviewsGrid');
+            const emptyState = document.getElementById('emptyState');
+            
+            grid.innerHTML = '';
+            const filteredReviews = allReviews.filter(r => r.estado === currentFilter);
+
+            if (filteredReviews.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                document.getElementById('emptyTitle').textContent = currentFilter === 'Pendiente' ? 'No tienes reseñas pendientes por revisar.' : 'No hay reseñas aprobadas aún.';
+            } else {
+                emptyState.classList.add('hidden');
+                grid.classList.remove('hidden');
+
+                filteredReviews.forEach(review => {
+                    const card = document.createElement('div');
+                    card.className = 'card flex flex-col justify-between h-full relative';
+                    
+                    // Adaptación CInformado: Tu backend guarda "autor" que puede ser seudónimo o "Anónimo".
+                    // Inferimos si es público si es diferente de "Anónimo".
+                    const nombreMostrar = review.autor || 'Anónimo';
+                    const esAnonimo = nombreMostrar.toLowerCase() === 'anónimo';
+                    
+                    const anonimatoBadge = !esAnonimo 
+                        ? `<span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Público / Seudónimo</span>`
+                        : `<span class="bg-purple-100 text-purple-700 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Anónimo</span>`;
+
+                    // Botones de acción dependiendo del estado
+                    let actionButtons = '';
+                    if (review.estado === 'Pendiente') {
+                        actionButtons = `
+                            <div class="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+                                <button onclick="updateStatus('${review.id}', 'Aprobado')" class="flex-1 bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 py-2 rounded-lg text-sm font-bold transition-colors flex justify-center items-center" id="btn-approve-${review.id}">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Aprobar y Publicar
+                                </button>
+                                <button onclick="openDeleteModal('${review.id}')" class="flex-none bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-3 py-2 rounded-lg transition-colors" title="Rechazar/Eliminar">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        `;
+                    } else if (review.estado === 'Aprobado') {
+                        actionButtons = `
+                            <div class="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+                                <span class="flex-1 text-center py-2 text-sm font-bold text-green-600 flex justify-center items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    Publicada en la Web
+                                </span>
+                                <button onclick="updateStatus('${review.id}', 'Pendiente')" class="flex-none bg-gray-50 hover:bg-gray-100 text-gray-600 border border-gray-200 px-3 py-2 rounded-lg text-xs font-semibold transition-colors" title="Ocultar (Devolver a pendientes)">
+                                    Ocultar
+                                </button>
+                                <button onclick="openDeleteModal('${review.id}')" class="flex-none bg-red-50 hover:bg-red-100 text-red-400 border border-red-100 px-3 py-2 rounded-lg transition-colors" title="Eliminar">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    card.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h3 class="font-bold text-gray-800 text-base">${nombreMostrar}</h3>
+                                    <p class="text-xs text-gray-500">${formatDate(review.fecha)}</p>
+                                </div>
+                                <div class="flex">
+                                    ${generateStarsHTML(review.estrellas || review.rating)} <!-- Tolerancia si la BD arroja 'estrellas' o 'rating' -->
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                ${anonimatoBadge}
+                            </div>
+                            <p class="text-sm text-gray-600 italic leading-relaxed">
+                                "${review.comentario}"
+                            </p>
+                        </div>
+                        ${actionButtons}
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+        }
+
+        // Petición POST real para actualizar estado
+        async function updateStatus(id, newStatus) {
+            try {
+                const response = await fetch(`${API_BASE_URL}?action=updateStatus`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, estado: newStatus })
+                });
+
+                if(!response.ok) throw new Error('Error al actualizar el estado en el servidor.');
+                
+                // Actualizar array en memoria para no recargar toda la página
+                const index = allReviews.findIndex(r => r.id === id);
+                if (index !== -1) {
+                    allReviews[index].estado = newStatus;
+                    updateCounts();
+                    renderReviews();
+                    showToast(newStatus === 'Aprobado' ? '✅ Reseña aprobada y publicada' : '👁️ Reseña ocultada (Pendiente)', 'success');
+                }
+            } catch(error) {
+                console.error(error);
+                showToast('Error de conexión al intentar actualizar.', 'error');
+            }
+        }
+
+        // --- LÓGICA DEL MODAL DE ELIMINACIÓN ---
+        function openDeleteModal(id) {
+            reviewToDeleteId = id;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            reviewToDeleteId = null;
+            document.getElementById('deleteModal').classList.add('hidden');
+            // Reset state of button just in case
+            document.getElementById('deleteBtnText').classList.remove('hidden');
+            document.getElementById('deleteSpinner').classList.add('hidden');
+            document.getElementById('confirmDeleteBtn').disabled = false;
+        }
+
+        // Petición DELETE real conectada al Modal
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+            if (!reviewToDeleteId) return;
+
+            // UI Loading state
+            document.getElementById('deleteBtnText').classList.add('hidden');
+            document.getElementById('deleteSpinner').classList.remove('hidden');
+            document.getElementById('confirmDeleteBtn').disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}?action=deleteReview&id=${reviewToDeleteId}`, {
+                    method: 'DELETE'
+                });
+
+                if(!response.ok) throw new Error('Error en el servidor al eliminar');
+
+                // Lógica de borrado en memoria
+                allReviews = allReviews.filter(r => r.id !== reviewToDeleteId);
+                updateCounts();
+                renderReviews();
+                closeDeleteModal();
+                showToast('🗑️ Reseña eliminada permanentemente', 'success');
+
+            } catch(error) {
+                console.error(error);
+                showToast('Error al intentar eliminar la reseña.', 'error');
+                closeDeleteModal();
+            }
+        });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Pagos - CInformado</title>
+        <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #F8F7F2; color: #4A4A4A; }
+        .card { background-color: white; border-radius: 16px; padding: 2rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; }
+        .input-styled, .select-styled { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 15px; width: 100%; transition: all 0.3s ease; }
+        .input-styled:focus, .select-styled:focus { outline: none; border-color: #3B4D4D; box-shadow: 0 0 0 2px rgba(59, 77, 77, 0.2); }
+        .payment-chip { background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; margin: 2px; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <a href="portal-consentimientos.html" class="flex-shrink-0">
+                    <img src="logoprincipal.png" alt="Vincula Logo" class="h-10 w-auto">
+                </a>
+                <span class="border-l h-6 mx-2 hidden md:block border-gray-300"></span>
+                <a href="portal-consentimientos.html" class="text-sm font-medium text-gray-600 hover:text-[#3B4D4D] flex items-center transition-colors">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    Volver al Dashboard
+                </a>
+            </div>
+            <button id="logoutButton" class="text-sm font-bold text-red-600 hover:text-red-800 transition-colors">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-6 py-8 max-w-6xl">
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-[#3B4D4D] flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Control de Pagos
+                </h1>
+                <p class="text-sm text-gray-500 mt-1">Supervisión de ingresos provenientes de pacientes con estado "Pagado".</p>
+            </div>
+
+            <!-- Filtros de Tiempo -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col sm:flex-row gap-3 items-center">
+                <label class="text-sm font-bold text-[#3B4D4D] whitespace-nowrap">Filtrar por:</label>
+                <select id="filterType" class="select-styled text-sm py-2">
+                    <option value="all">Todo el Histórico</option>
+                    <option value="last_week">Última Semana (Lun - Dom)</option>
+                    <option value="last_month">Último Mes Cerrado</option>
+                    <option value="current_month">Mes Actual</option>
+                    <option value="last_year">Último Año Cerrado</option>
+                    <option value="custom_month">Mes Específico</option>
+                    <option value="custom_year">Año Específico</option>
+                </select>
+
+                <!-- Inputs dinámicos que aparecen según el filtro seleccionado -->
+                <input type="month" id="customMonthInput" class="input-styled text-sm py-2 hidden">
+                <input type="number" id="customYearInput" class="input-styled text-sm py-2 hidden" placeholder="Ej: 2025" min="2020" max="2100">
+            </div>
+        </div>
+
+        <!-- Indicadores (KPIs) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-[#3B4D4D] rounded-2xl p-6 shadow-lg text-white relative overflow-hidden">
+                <div class="absolute top-0 right-0 -mt-4 -mr-4 text-white opacity-10">
+                    <svg class="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.97-1.3-3.15-2.77-3.67V5h-1.9v1.05c-1.6.46-2.79 1.4-2.79 2.96 0 1.9 1.5 2.82 3.67 3.37 1.58.4 2.22.95 2.22 1.74 0 .72-.73 1.5-2.25 1.5-1.54 0-2.36-.71-2.42-1.76H7.76c.07 2.02 1.4 3.13 2.92 3.64V19h1.9v-1.04c1.64-.4 2.92-1.46 2.92-3.15 0-2.09-1.64-2.94-3.5-3.41z"/></svg>
+                </div>
+                <p class="text-blue-200 font-semibold mb-1 text-sm uppercase tracking-wider relative z-10">Ingresos del Periodo</p>
+                <h2 id="kpiTotalPeriodo" class="text-4xl font-bold truncate relative z-10">$ 0</h2>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 flex flex-col justify-center">
+                <p class="text-gray-500 font-semibold mb-1 text-sm uppercase tracking-wider">Pacientes con Pagos</p>
+                <h2 id="kpiPacientes" class="text-3xl font-bold text-[#3B4D4D]">0</h2>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 flex flex-col justify-center">
+                <p class="text-gray-500 font-semibold mb-1 text-sm uppercase tracking-wider">Histórico Acumulado (Todos)</p>
+                <h2 id="kpiTotalHistorico" class="text-3xl font-bold text-gray-800 truncate">$ 0</h2>
+            </div>
+        </div>
+
+        <div id="loading" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#3B4D4D] mb-4"></div>
+            <p class="text-lg text-[#3B4D4D] font-semibold">Consultando base de datos financiera...</p>
+        </div>
+
+        <!-- Tabela de Pacientes -->
+        <div id="tableContainer" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hidden">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                <h3 class="font-bold text-gray-700" id="tableTitle">Desglose de Ingresos</h3>
+                <span id="periodLabel" class="text-sm font-semibold text-[#3B4D4D] bg-blue-100 px-3 py-1 rounded-full">Todo el histórico</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-600">
+                    <thead class="text-xs text-gray-700 uppercase bg-white border-b border-gray-200">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 font-bold">Paciente</th>
+                            <th scope="col" class="px-6 py-4 font-bold">Detalle de Pagos (En el Periodo)</th>
+                            <th scope="col" class="px-6 py-4 font-bold text-right text-[#3B4D4D]">Total Periodo</th>
+                            <th scope="col" class="px-6 py-4 font-bold text-right text-gray-400">Total Histórico</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pagosTableBody">
+                        <!-- Llenado por JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="emptyState" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-gray-300 mt-4">
+            <div class="text-gray-300 mb-3"><svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
+            <p class="text-xl font-bold text-[#3B4D4D] mb-2">No hay pagos registrados en este periodo.</p>
+            <p class="text-sm text-gray-500">Recuerda marcar la casilla "Pagado" en la Historia Clínica del paciente para que el valor se refleje aquí.</p>
+        </div>
+
+    </main>
+
+    <script>
+        let rawPaymentData = [];
+
+        const formatCurrency = (value) => {
+            if (!value || isNaN(value)) return '$ 0';
+            return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(value);
+        };
+
+        const formatDateShort = (isoString) => {
+            if (!isoString) return '';
+            const partes = isoString.split('-');
+            if(partes.length >= 3) {
+                const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+                return `${partes[2].substring(0,2)}/${meses[parseInt(partes[1],10)-1]}`;
+            }
+            return isoString;
+        };
+
+        // Función para asegurar que el formato de fecha local se genere como YYYY-MM-DD
+        const getLocalYYYYMMDD = (dateObj) => {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('consultorAuth') !== 'true') {
+                window.location.href = 'login.html'; return;
+            }
+            document.getElementById('logoutButton').addEventListener('click', () => {
+                sessionStorage.removeItem('consultorAuth'); window.location.href = 'login.html';
+            });
+
+            // Lógica de visualización de filtros dinámicos
+            const filterType = document.getElementById('filterType');
+            const customMonth = document.getElementById('customMonthInput');
+            const customYear = document.getElementById('customYearInput');
+
+            // Establecer valores por defecto en los inputs
+            const hoy = new Date();
+            customMonth.value = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
+            customYear.value = hoy.getFullYear();
+
+            filterType.addEventListener('change', (e) => {
+                const val = e.target.value;
+                customMonth.classList.add('hidden');
+                customYear.classList.add('hidden');
+                
+                if (val === 'custom_month') customMonth.classList.remove('hidden');
+                if (val === 'custom_year') customYear.classList.remove('hidden');
+                
+                applyFilters();
+            });
+
+            customMonth.addEventListener('change', applyFilters);
+            customYear.addEventListener('input', applyFilters);
+
+            fetchPagos();
+        });
+
+        async function fetchPagos() {
+            try {
+                // Usamos la API que creamos para recopilar todos los pagos con estado 'Pagado'
+                const response = await fetch('/api/pagos');
+                if (!response.ok) throw new Error('Falló la lectura financiera.');
+                rawPaymentData = await response.json();
+                
+                applyFilters(); // Aplicar el filtro por defecto (Todo el histórico)
+                
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loading').innerHTML = '<span class="text-red-500 font-bold">Error de conexión. Asegúrate de haber subido el archivo api/pagos.js correctamente.</span>';
+            }
+        }
+
+        // Calcula las cadenas "YYYY-MM-DD" de inicio y fin dependiendo del filtro elegido
+        function getDateBoundaries() {
+            const type = document.getElementById('filterType').value;
+            let startStr = '0000-00-00';
+            let endStr = '9999-12-31';
+            let label = "Todo el Histórico";
+
+            const today = new Date();
+
+            if (type === 'last_week') {
+                // Semana de Lunes a Domingo anterior
+                const dayOfWeek = today.getDay() || 7; // 1 (Lun) a 7 (Dom)
+                const lastSunday = new Date(today);
+                lastSunday.setDate(today.getDate() - dayOfWeek);
+                
+                const lastMonday = new Date(lastSunday);
+                lastMonday.setDate(lastSunday.getDate() - 6);
+                
+                startStr = getLocalYYYYMMDD(lastMonday);
+                endStr = getLocalYYYYMMDD(lastSunday);
+                label = `Semana del ${formatDateShort(startStr)} al ${formatDateShort(endStr)}`;
+            } 
+            else if (type === 'current_month') {
+                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                startStr = getLocalYYYYMMDD(firstDay);
+                endStr = getLocalYYYYMMDD(lastDay);
+                const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                label = `Mes de ${meses[today.getMonth()]} ${today.getFullYear()}`;
+            }
+            else if (type === 'last_month') {
+                const firstDay = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                const lastDay = new Date(today.getFullYear(), today.getMonth(), 0);
+                startStr = getLocalYYYYMMDD(firstDay);
+                endStr = getLocalYYYYMMDD(lastDay);
+                const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                label = `Mes cerrado: ${meses[firstDay.getMonth()]} ${firstDay.getFullYear()}`;
+            }
+            else if (type === 'last_year') {
+                const lastYear = today.getFullYear() - 1;
+                startStr = `${lastYear}-01-01`;
+                endStr = `${lastYear}-12-31`;
+                label = `Año ${lastYear} Completo`;
+            }
+            else if (type === 'custom_month') {
+                const val = document.getElementById('customMonthInput').value; // Formato YYYY-MM
+                if (val) {
+                    const [year, month] = val.split('-');
+                    const lastDay = new Date(year, month, 0).getDate();
+                    startStr = `${val}-01`;
+                    endStr = `${val}-${String(lastDay).padStart(2, '0')}`;
+                    label = `Mes específico: ${val}`;
+                }
+            }
+            else if (type === 'custom_year') {
+                const val = document.getElementById('customYearInput').value; // Formato YYYY
+                if (val && val.length === 4) {
+                    startStr = `${val}-01-01`;
+                    endStr = `${val}-12-31`;
+                    label = `Año específico: ${val}`;
+                }
+            }
+
+            return { startStr, endStr, label };
+        }
+
+        function applyFilters() {
+            document.getElementById('loading').classList.add('hidden');
+            
+            const { startStr, endStr, label } = getDateBoundaries();
+            document.getElementById('periodLabel').textContent = label;
+
+            let totalPeriodo = 0;
+            let totalHistoricoGeneral = 0;
+            const rowsData = [];
+
+            // 1. Filtrar los pagos para cada paciente basándonos en fechas
+            rawPaymentData.forEach(paciente => {
+                let sumaPeriodo = 0;
+                let sumaHistorica = 0;
+                const chipsPagos = [];
+
+                paciente.pagos.forEach(pago => {
+                    // El pago siempre suma al histórico general, sin importar la fecha
+                    sumaHistorica += pago.valor;
+                    totalHistoricoGeneral += pago.valor;
+
+                    // Comparación alfanumérica segura para fechas YYYY-MM-DD
+                    if (pago.fecha >= startStr && pago.fecha <= endStr) {
+                        sumaPeriodo += pago.valor;
+                        totalPeriodo += pago.valor;
+                        chipsPagos.push({ fecha: pago.fecha, valor: pago.valor });
+                    }
+                });
+
+                // Si tuvo ingresos en el periodo, lo metemos a la tabla
+                if (sumaPeriodo > 0) {
+                    // Ordenar los chips para que los pagos recientes salgan primero
+                    chipsPagos.sort((a, b) => b.fecha.localeCompare(a.fecha));
+                    
+                    rowsData.push({
+                        nombre: paciente.nombre,
+                        id: paciente.pacienteId,
+                        sumaPeriodo,
+                        sumaHistorica,
+                        chipsPagos
+                    });
+                }
+            });
+
+            // 2. Ordenar alfabéticamente a los pacientes en la tabla
+            rowsData.sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+            // 3. Renderizar KPIs
+            document.getElementById('kpiTotalPeriodo').textContent = formatCurrency(totalPeriodo);
+            document.getElementById('kpiPacientes').textContent = rowsData.length;
+            document.getElementById('kpiTotalHistorico').textContent = formatCurrency(totalHistoricoGeneral);
+
+            // 4. Renderizar la Tabla
+            const tableBody = document.getElementById('pagosTableBody');
+            const tableContainer = document.getElementById('tableContainer');
+            const emptyState = document.getElementById('emptyState');
+
+            tableBody.innerHTML = '';
+
+            if (rowsData.length === 0) {
+                tableContainer.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                tableContainer.classList.remove('hidden');
+
+                rowsData.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b border-gray-100 hover:bg-blue-50 transition-colors';
+                    
+                    // Construir los chips visuales (Ej: 12/May: $180k)
+                    const chipsHTML = row.chipsPagos.map(p => 
+                        `<span class="payment-chip">
+                            <svg class="w-3 h-3 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            ${formatDateShort(p.fecha)}: ${formatCurrency(p.valor)}
+                        </span>`
+                    ).join('');
+
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 font-bold text-gray-800">
+                            <a href="historia-clinica.html?id=${row.id}" class="hover:text-[#3B4D4D] hover:underline" title="Ir a la historia clínica">${row.nombre}</a>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-wrap gap-1 max-w-lg">
+                                ${chipsHTML}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-right font-bold text-green-700 bg-green-50/30 text-base">
+                            ${formatCurrency(row.sumaPeriodo)}
+                        </td>
+                        <td class="px-6 py-4 text-right font-semibold text-gray-400">
+                            ${formatCurrency(row.sumaHistorica)}
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

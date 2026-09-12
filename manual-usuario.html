@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Usuario - CInformado</title>
+        <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #F8F7F2; color: #333; }
+        .page-break { break-inside: avoid; page-break-inside: avoid; }
+        
+        /* Estilos específicos para generar el PDF al imprimir */
+        @media print {
+            body { background-color: white !important; font-size: 12pt; }
+            .no-print { display: none !important; }
+            .print-shadow-none { box-shadow: none !important; border: 1px solid #e5e7eb; }
+            h1 { font-size: 24pt !important; }
+            h2 { font-size: 18pt !important; margin-top: 20pt !important; padding-bottom: 5pt !important; border-bottom: 2px solid #3B4D4D !important; }
+            h3 { font-size: 14pt !important; color: #3B4D4D !important; }
+            .bg-blue-50 { background-color: #f0f8ff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .card { break-inside: avoid; page-break-inside: avoid; margin-bottom: 20px; }
+            @page { margin: 1.5cm; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- BARRA DE HERRAMIENTAS (Oculta en PDF) -->
+    <div class="bg-white shadow-sm sticky top-0 z-50 no-print border-b border-gray-200">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <a href="portal-consentimientos.html" class="text-sm font-medium text-gray-600 hover:text-[#3B4D4D] flex items-center">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    Volver al Dashboard
+                </a>
+            </div>
+            <button onclick="window.print()" class="bg-[#3B4D4D] hover:bg-[#2C3A38] text-white px-5 py-2 rounded-lg font-bold flex items-center shadow-md transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                Descargar como PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- DOCUMENTO PRINCIPAL -->
+    <main class="container mx-auto px-6 py-12 max-w-4xl bg-white print-shadow-none shadow-xl my-8 rounded-xl border border-gray-100">
+        
+        <!-- PORTADA -->
+        <div class="text-center pb-12 border-b-2 border-[#3B4D4D] mb-10">
+            <img src="logoprincipal.png" alt="Vincula Logo" class="h-20 w-auto mx-auto mb-6">
+            <h1 class="text-4xl font-bold text-[#3B4D4D] mb-3">Manual Operativo del Sistema</h1>
+            <p class="text-xl text-gray-500 font-light">Plataforma Clínica y Legal "CInformado"</p>
+            <p class="text-sm text-gray-400 mt-4">Autor: Psic. Laura Jiménez Rivero</p>
+        </div>
+
+        <!-- CONTENIDO -->
+        <div class="space-y-12 text-gray-700 leading-relaxed">
+            
+            <!-- 1. INTRODUCCIÓN -->
+            <section class="card">
+                <h2 class="text-2xl font-bold text-[#3B4D4D] border-b pb-2 mb-4 flex items-center">
+                    <span class="bg-blue-100 text-blue-800 rounded-full w-8 h-8 inline-flex items-center justify-center mr-3 text-lg">1</span>
+                    Introducción
+                </h2>
+                <p class="mb-4">Bienvenido al sistema integrado <strong>CInformado</strong> de Vincula. Esta plataforma fue diseñada a medida para automatizar el flujo legal, clínico y financiero de su consulta independiente.</p>
+                <p>El sistema consta de 5 pilares operativos:</p>
+                <ul class="list-disc list-inside space-y-2 ml-4 mb-4">
+                    <li>Recepción de Consentimientos (Firmas Digitales).</li>
+                    <li>Psicología que Transforma (Historia Clínica inmodificable).</li>
+                    <li>Agenda Integrada (Google Calendar y Meet).</li>
+                    <li>Analítica Financiera (Pagos).</li>
+                    <li>Bóveda de Seguridad (Backup).</li>
+                </ul>
+            </section>
+
+            <!-- 2. CONSENTIMIENTOS -->
+            <section class="card">
+                <h2 class="text-2xl font-bold text-[#3B4D4D] border-b pb-2 mb-4 flex items-center">
+                    <span class="bg-blue-100 text-blue-800 rounded-full w-8 h-8 inline-flex items-center justify-center mr-3 text-lg">2</span>
+                    Consentimientos Informados
+                </h2>
+                <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 mb-4">
+                    <h3 class="font-bold text-lg mb-2">Flujo para el Paciente</h3>
+                    <p class="mb-2">Usted no necesita crear los pacientes manualmente. El flujo correcto es:</p>
+                    <ol class="list-decimal list-inside space-y-1 ml-2">
+                        <li>Envíe el enlace público de su web al paciente (ej. <code>https://cinformado.lauravjimenez.com/index.html</code> para individuos o <code>https://cinformado.lauravjimenez.com/parejas.html</code> para parejas).</li>
+                        <li>El paciente llena sus datos, acepta los términos y firma desde su celular o computador.</li>
+                        <li>El sistema genera automáticamente el PDF, se lo envía al paciente por correo y a usted le llega una notificación.</li>
+                        <li>El paciente aparecerá mágicamente en su <strong>Dashboard Principal</strong>.</li>
+                    </ol>
+                </div>
+                <p><strong>Nota Habeas Data:</strong> Si un paciente cambia de número de teléfono o dirección, usted puede actualizar estos datos ingresando a su "Historia Clínica" y haciendo clic en el botón gris <em>"Actualizar Datos"</em> en la esquina superior derecha.</p>
+            </section>
+
+            <!-- 3. DASHBOARD PRINCIPAL -->
+            <section class="card">
+                <h2 class="text-2xl font-bold text-[#3B4D4D] border-b pb-2 mb-4 flex items-center">
+                    <span class="bg-blue-100 text-blue-800 rounded-full w-8 h-8 inline-flex items-center justify-center mr-3 text-lg">3</span>
+                    Centro de Comando (Dashboard)
+                </h2>
+                <p class="mb-4">El portal principal es la pantalla de inicio del sistema. Una vez que un paciente firma su consentimiento, su expediente aparece aquí de manera automática y en tiempo real.</p>
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="font-bold text-[#3B4D4D]">A. Organización Inteligente</h3>
+                        <p class="text-sm">En la esquina superior derecha del panel de pacientes, encontrará un filtro. Puede ordenar su base de datos alfabéticamente (A-Z), por los más recientes, los más antiguos, o agruparlos visualmente separando a los individuos de las parejas.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-[#3B4D4D]">B. Accesos Directos (Menú Superior)</h3>
+                        <p class="text-sm">Desde la barra de navegación superior, usted puede saltar a los otros módulos del sistema: <strong>🗓️ Agenda</strong>, <strong>$ Pagos</strong>, <strong>📖 Manual</strong> y descargar un <strong>Backup</strong> de seguridad en un clic.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-[#3B4D4D]">C. Gestión del Expediente</h3>
+                        <p class="text-sm">Cada paciente listado en la tabla cuenta con tres acciones disponibles:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-sm mt-1">
+                            <li><strong>Historia Clínica:</strong> Abre el módulo de gestión existencial (HALCÓN, Plan y Bitácora).</li>
+                            <li><strong>📄 Consentimiento:</strong> Muestra los términos aceptados, las firmas y permite actualizar datos demográficos.</li>
+                            <li><strong>Papelera (Roja):</strong> <span class="text-red-600 font-bold">¡Cuidado!</span> Borra permanentemente toda la información del paciente. Esta acción no se puede deshacer (a menos que tenga un Backup reciente).</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. HISTORIA CLÍNICA -->
+            <section class="card">
+                <h2 class="text-2xl font-bold text-[#3B4D4D] border-b pb-2 mb-4 flex items-center">
+                    <span class="bg-blue-100 text-blue-800 rounded-full w-8 h-8 inline-flex items-center justify-center mr-3 text-lg">4</span>
+                    Psicología que Transforma (Historia Clínica)
+                </h2>
+                <p class="mb-4">Al ingresar al expediente de un paciente desde el Dashboard, encontrará un diseño de pestañas estructurado metodológicamente:</p>
+                
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="font-bold text-[#3B4D4D]">A. Perfil Ejecutivo (Autogenerado)</h3>
+                        <p class="text-sm">En la parte superior, hay una caja azul. Use el botón <em>"✨ Autogenerar con HALCÓN"</em> para que el sistema redacte un resumen ejecutivo del paciente basado en lo que ha escrito abajo. También cuenta con una casilla fija para recordar el <strong>Propósito de Vida</strong> del paciente.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-[#3B4D4D]">B. Pestaña 1: Sesión Cero (HALCÓN)</h3>
+                        <p class="text-sm">Aquí se registra la entrevista diagnóstica inicial. Esta pestaña es actualizable. Puede entrar y modificar el diagnóstico de <em>Habilidades, Aspiraciones, Lógica, etc.</em> a medida que avanza la terapia.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-[#3B4D4D]">C. Pestaña 2: Plan de Trabajo</h3>
+                        <p class="text-sm">Le permite estructurar las sesiones futuras. Use las casillas de verificación verdes para llevar un control visual de qué temas ya abordó.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-[#3B4D4D]">D. Pestaña 3: Bitácora de Evolución</h3>
+                        <p class="text-sm"><strong>⚠️ Importante:</strong> Esta es la memoria legal de la consulta. Una vez guarda una nota de evolución, <strong>no se puede borrar ni modificar</strong>. Si comete un error, debe abrir la sesión (haciendo clic sobre ella en la línea de tiempo) y usar la caja amarilla de <em>"Agregar Actualización o Anexo"</em>.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. AGENDAMIENTO -->
+            <section class="card">
+                <h2 class="text-2xl font-bold text-[#3B4D4D] border-b pb-2 mb-4 flex items-center">
+                    <span class="bg-blue-100 text-blue-800 rounded-full w-8 h-8 inline-flex items-center justify-center mr-3 text-lg">5</span>
+                    Agenda y Notificaciones
+                </h2>
+                <p class="mb-4">El agendamiento se realiza directamente desde la <strong>Historia Clínica</strong> del paciente, en el recuadro morado de la derecha.</p>
+                <ul class="list-disc list-inside space-y-2 ml-4">
+                    <li><strong>Citas Virtuales:</strong> Pegue su enlace de Google Meet. El sistema lo recordará para futuras citas de ese paciente.</li>
+                    <li><strong>Citas Presenciales:</strong> Marque la casilla "Cita Predominantemente Presencial". Aparecerá un recuadro para escribir la dirección de su consultorio.</li>
+                    <li>Al hacer clic en <em>"Agendar y Enviar Correos"</em>, el paciente recibe una invitación oficial (.ics) que se añade automáticamente a su calendario celular.</li>
+                    <li><strong>Reprogramación:</strong> Vaya al menú <em>"🗓️ Agenda"</em> en el portal, haga clic sobre la cita en el calendario mensual y elija una nueva fecha.</li>
+                </ul>
+            </section>
+
+            <!-- 6. FINANZAS -->
+            <section class="card">
+                <h2 class="text-2xl font-bold text-[#3B4D4D] border-b pb-2 mb-4 flex items-center">
+                    <span class="bg-blue-100 text-blue-800 rounded-full w-8 h-8 inline-flex items-center justify-center mr-3 text-lg">6</span>
+                    Control Financiero
+                </h2>
+                <div class="flex items-start bg-green-50 p-4 rounded-lg border border-green-200">
+                    <div class="text-2xl mr-3">💰</div>
+                    <div>
+                        <p class="text-sm">El sistema de finanzas <strong>no requiere que ingrese datos manuales</strong>. Se alimenta directamente de su práctica clínica.</p>
+                        <p class="text-sm mt-2">Para que un pago aparezca en su dashboard financiero, asegúrese de hacer dos cosas al registrar una <em>Sesión Cero</em> o una <em>Evolución</em>:</p>
+                        <ol class="list-decimal list-inside text-sm mt-1 ml-2 font-semibold text-green-800">
+                            <li>Escribir el valor numérico (Ej. 180000).</li>
+                            <li>Marcar la casilla verde "Pagado".</li>
+                        </ol>
+                    </div>
+                </div>
+                <p class="text-sm mt-3">Puede consultar los ingresos por semana, mes o año ingresando al botón <strong>"$ Pagos"</strong> en el menú superior del Dashboard.</p>
+            </section>
+
+            <!-- 7. BACKUP Y RESTAURACIÓN -->
+            <section class="card">
+                <h2 class="text-2xl font-bold text-[#3B4D4D] border-b pb-2 mb-4 flex items-center">
+                    <span class="bg-blue-100 text-blue-800 rounded-full w-8 h-8 inline-flex items-center justify-center mr-3 text-lg">7</span>
+                    Bóveda de Seguridad (Backups)
+                </h2>
+                <p class="mb-4">Usted es el único dueño de sus datos. Le recomendamos hacer un backup cada viernes o al cierre de mes.</p>
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="font-bold text-[#3B4D4D]">¿Cómo hacer copia de seguridad?</h3>
+                        <p class="text-sm">En el Dashboard principal, haga clic en <strong>"Backup"</strong>. Se descargará un archivo <code>.json</code> en su computador. Guárdelo en una carpeta segura de OneDrive o Google Drive.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-red-700">¿Cómo restaurar los datos en caso de pérdida?</h3>
+                        <p class="text-sm">Si borra un paciente por accidente o hay un fallo general:</p>
+                        <ol class="list-decimal list-inside space-y-1 ml-2 text-sm">
+                            <li>Escriba en su navegador la URL secreta: <code>https://cinformado.lauravjimenez.com/restaurar-db.html</code></li>
+                            <li>Suba el archivo <code>.json</code> que guardó previamente.</li>
+                            <li>Ingrese su PIN Maestro de Seguridad configurado en Vercel.</li>
+                            <li>Haga clic en <em>Restaurar</em>. Sus datos volverán al estado exacto en el que estaban al momento del backup.</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <div class="mt-16 pt-8 border-t border-gray-200 text-center text-sm text-gray-500 no-print">
+            Manual generado por el sistema automatizado. Guárdelo en un lugar seguro.
+        </div>
+
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('consultorAuth') !== 'true') {
+                window.location.href = 'login.html';
+                return;
+            }
+        });
+    </script>
+</body>
+</html>

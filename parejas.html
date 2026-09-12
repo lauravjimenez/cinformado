@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consentimiento Parejas - Vincula</title>
+        <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #F8F7F2; color: #4A4A4A; }
+        .btn-brand { background-color: #3B4D4D; color: white; padding: 12px 30px; border-radius: 9999px; font-weight: 600; transition: all 0.3s ease; }
+        .btn-brand:hover { background-color: #2C3A38; }
+        .btn-brand:disabled { background-color: #99aabb; cursor: not-allowed; }
+        .card { background-color: white; border-radius: 16px; padding: 2.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        .input-styled, .select-styled { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 15px; width: 100%; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+        .input-styled:focus, .select-styled:focus { outline: none; border-color: #3B4D4D; box-shadow: 0 0 0 2px rgba(59, 77, 77, 0.2); }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-2">
+            <img src="logoprincipal.png" alt="Vincula Logo" class="h-11 w-auto">
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <div class="max-w-5xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-bold text-center mb-4">Consentimiento Informado - Terapia de Pareja</h1>
+            <p class="text-center text-gray-600 mb-8" id="page-subtitle">Por favor, completen los datos de ambos para generar el acuerdo de servicio.</p>
+
+            <form id="demographicsForm" class="space-y-8">
+                <!-- PACIENTE 1 -->
+                <div class="card space-y-6">
+                    <h2 class="text-2xl font-bold border-b pb-3 text-[#3B4D4D]">1. Información del Paciente 1</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2"><label for="fechaDiligenciamiento" class="block mb-2 font-medium">Fecha de Diligenciamiento</label><input type="date" id="fechaDiligenciamiento" name="fechaDiligenciamiento" class="input-styled bg-gray-100" readonly></div>
+                        <div><label for="nombreCompleto1" class="block mb-2 font-medium">Nombre Completo</label><input type="text" id="nombreCompleto1" name="nombreCompleto1" class="input-styled" required></div>
+                        <div><label for="fechaNacimiento1" class="block mb-2 font-medium">Fecha de Nacimiento</label><input type="date" id="fechaNacimiento1" name="fechaNacimiento1" class="input-styled" required></div>
+                        <div><label for="edad1" class="block mb-2 font-medium">Edad</label><input type="text" id="edad1" name="edad1" class="input-styled bg-gray-100" readonly></div>
+                        <div><label for="pais1" class="block mb-2 font-medium">País de Residencia</label><select id="pais1" name="pais1" class="select-styled" required></select></div>
+                        <div id="departamentoContainer1" class="hidden"><label for="departamento1" class="block mb-2 font-medium">Departamento</label><select id="departamento1" name="departamento1" class="select-styled"></select></div>
+                        <div id="municipioContainer1" class="hidden"><label for="municipio1" class="block mb-2 font-medium">Municipio / Ciudad</label><select id="municipio1" name="municipio1" class="select-styled"></select></div>
+                        <div id="ciudadContainer1" class="hidden"><label for="ciudad1" class="block mb-2 font-medium">Ciudad de Residencia</label><input type="text" id="ciudad1" name="ciudad1" class="input-styled"></div>
+                        <div><label for="tipoDocumento1" class="block mb-2 font-medium">Tipo de Documento</label><select id="tipoDocumento1" name="tipoDocumento1" class="select-styled" required></select></div>
+                        <div><label for="documentoIdentidad1" class="block mb-2 font-medium">Documento de Identidad</label><input type="text" id="documentoIdentidad1" name="documentoIdentidad1" class="input-styled" required></div>
+                        <div class="md:col-span-2"><label for="direccion1" class="block mb-2 font-medium">Dirección de Residencia</label><input type="text" id="direccion1" name="direccion1" class="input-styled" required></div>
+                        <div><label for="telefonoContacto1" class="block mb-2 font-medium">Teléfono de Contacto</label><input type="tel" id="telefonoContacto1" name="telefonoContacto1" class="input-styled" required></div>
+                        <div><label for="email1" class="block mb-2 font-medium">Correo Electrónico</label><input type="email" id="email1" name="email1" class="input-styled" required></div>
+                        <div><label id="labelEps1" for="eps1" class="block mb-2 font-medium">EPS / Servicio de Salud</label><input type="text" id="eps1" name="eps1" class="input-styled" required></div>
+                        
+                        <div class="md:col-span-2 pt-4 border-t border-gray-100"><h3 class="text-lg font-semibold text-[#3B4D4D]">Contacto de Emergencia (Paciente 1)</h3></div>
+                        <div><label for="contactoEmergenciaNombre1" class="block mb-2 font-medium">Nombre Completo</label><input type="text" id="contactoEmergenciaNombre1" name="contactoEmergenciaNombre1" class="input-styled" required></div>
+                        <div><label for="contactoEmergenciaTelefono1" class="block mb-2 font-medium">Teléfono</label><input type="tel" id="contactoEmergenciaTelefono1" name="contactoEmergenciaTelefono1" class="input-styled" required></div>
+                    </div>
+                </div>
+
+                <!-- PACIENTE 2 -->
+                <div class="card space-y-6">
+                    <h2 class="text-2xl font-bold border-b pb-3 text-[#3B4D4D]">2. Información del Paciente 2</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div><label for="nombreCompleto2" class="block mb-2 font-medium">Nombre Completo</label><input type="text" id="nombreCompleto2" name="nombreCompleto2" class="input-styled" required></div>
+                        <div><label for="fechaNacimiento2" class="block mb-2 font-medium">Fecha de Nacimiento</label><input type="date" id="fechaNacimiento2" name="fechaNacimiento2" class="input-styled" required></div>
+                        <div><label for="edad2" class="block mb-2 font-medium">Edad</label><input type="text" id="edad2" name="edad2" class="input-styled bg-gray-100" readonly></div>
+                        <div><label for="pais2" class="block mb-2 font-medium">País de Residencia</label><select id="pais2" name="pais2" class="select-styled" required></select></div>
+                        <div id="departamentoContainer2" class="hidden"><label for="departamento2" class="block mb-2 font-medium">Departamento</label><select id="departamento2" name="departamento2" class="select-styled"></select></div>
+                        <div id="municipioContainer2" class="hidden"><label for="municipio2" class="block mb-2 font-medium">Municipio / Ciudad</label><select id="municipio2" name="municipio2" class="select-styled"></select></div>
+                        <div id="ciudadContainer2" class="hidden"><label for="ciudad2" class="block mb-2 font-medium">Ciudad de Residencia</label><input type="text" id="ciudad2" name="ciudad2" class="input-styled"></div>
+                        <div><label for="tipoDocumento2" class="block mb-2 font-medium">Tipo de Documento</label><select id="tipoDocumento2" name="tipoDocumento2" class="select-styled" required></select></div>
+                        <div><label for="documentoIdentidad2" class="block mb-2 font-medium">Documento de Identidad</label><input type="text" id="documentoIdentidad2" name="documentoIdentidad2" class="input-styled" required></div>
+                        <div class="md:col-span-2"><label for="direccion2" class="block mb-2 font-medium">Dirección de Residencia</label><input type="text" id="direccion2" name="direccion2" class="input-styled" required></div>
+                        <div><label for="telefonoContacto2" class="block mb-2 font-medium">Teléfono de Contacto</label><input type="tel" id="telefonoContacto2" name="telefonoContacto2" class="input-styled" required></div>
+                        <div><label for="email2" class="block mb-2 font-medium">Correo Electrónico</label><input type="email" id="email2" name="email2" class="input-styled" required></div>
+                        <div><label id="labelEps2" for="eps2" class="block mb-2 font-medium">EPS / Servicio de Salud</label><input type="text" id="eps2" name="eps2" class="input-styled" required></div>
+                        
+                        <div class="md:col-span-2 pt-4 border-t border-gray-100"><h3 class="text-lg font-semibold text-[#3B4D4D]">Contacto de Emergencia (Paciente 2)</h3></div>
+                        <div><label for="contactoEmergenciaNombre2" class="block mb-2 font-medium">Nombre Completo</label><input type="text" id="contactoEmergenciaNombre2" name="contactoEmergenciaNombre2" class="input-styled" required></div>
+                        <div><label for="contactoEmergenciaTelefono2" class="block mb-2 font-medium">Teléfono</label><input type="tel" id="contactoEmergenciaTelefono2" name="contactoEmergenciaTelefono2" class="input-styled" required></div>
+                    </div>
+                </div>
+
+                <div id="form-error" class="text-red-600 text-center font-semibold hidden">Por favor, completen todos los campos requeridos para ambos pacientes.</div>
+                <div class="text-center pt-4">
+                    <button type="button" id="showConsentButton" class="btn-brand">Continuar y Leer Consentimiento</button>
+                </div>
+            </form>
+
+            <!-- TÉRMINOS DEL CONSENTIMIENTO (PAREJAS) -->
+            <div id="consentimientoContainer" class="hidden card mt-8">
+                <h2 class="text-2xl font-bold border-b pb-3 mb-6">3. Términos del Consentimiento Informado</h2>
+                <div class="prose max-w-none space-y-4 text-gray-700">
+                    <p id="consentimientoIntro"></p>
+                    <div class="space-y-2"><h4 class="font-bold">3.1 Confidencialidad:</h4><p>Entendemos, aceptamos y somos conscientes del trabajo profesional que realizará la psicóloga designada, y que esta guardará una confidencialidad absoluta con nosotros, la cual será inviolable, salvo que nuestra integridad física se vea amenazada, y salvo los requerimientos de ley que así mismo pidan levantar la reserva profesional.</p></div>
+                    <div class="space-y-2"><h4 class="font-bold">3.2 Propósito de la Intervención:</h4><p>El propósito es realizar una evaluación y/o intervención psicológica, la cual se llevará a cabo utilizando técnicas y enfoques validados por la psicología como ciencia.</p></div>
+                    <div class="space-y-2"><h4 class="font-bold">3.3 Naturaleza del Proceso:</h4><p>Se nos ha informado que el proceso puede incluir entrevistas, pruebas psicométricas y tareas inter-sesión, y que nuestra participación activa es fundamental para el éxito del mismo.</p></div>
+                    <div class="space-y-2"><h4 class="font-bold">3.4 Proceso de evaluación:</h4><p>Autorizamos que nos sean practicadas pruebas psicométricas y demás herramientas diagnósticas que la psicóloga designada así considere necesario, a fin de establecer cabal y puntualmente un diagnóstico asertivo sobre el motivo de consulta.</p></div>
+                    <div class="space-y-2"><h4 class="font-bold">3.5 Costos económicos:</h4><p>Nos comprometemos a cubrir todos los gastos económicos en que se incurra con motivo de la atención que recibiremos, habiendo recibido la información de forma clara y oportuna y habiendo tenido la oportunidad de aceptar o rechazar dichas atenciones psicológicas y los costos asociados.</p></div>
+                    <div class="space-y-2"><h4 class="font-bold">3.6 Tratamiento de Datos:</h4><p>Autorizamos el tratamiento de nuestros datos personales de acuerdo con la Ley 1581 de 2012 y la política de tratamiento de datos de "Psic. Laura Jiménez Rivero", la cual hemos podido consultar.</p></div>
+                </div>
+
+                <!-- SECCIÓN DE MODALIDAD Y DECLARACIÓN -->
+                <div class="mt-8 pt-6 border-t">
+                    <h3 class="font-bold text-lg mb-2 text-[#3B4D4D]">Modalidad de esta Sesión de Consentimiento</h3>
+                    <p class="text-sm text-gray-600 mb-4">Por favor, seleccionen cómo se está llevando a cabo esta sesión conjunta.</p>
+                    <div class="flex items-center space-x-6 mb-6">
+                        <label class="flex items-center cursor-pointer font-medium"><input type="radio" name="modalidad" value="presencial" class="mr-2 h-4 w-4 text-[#3B4D4D] focus:ring-[#3B4D4D]" checked> Presencial</label>
+                        <label class="flex items-center cursor-pointer font-medium"><input type="radio" name="modalidad" value="virtual" class="mr-2 h-4 w-4 text-[#3B4D4D] focus:ring-[#3B4D4D]"> Virtual</label>
+                    </div>
+
+                    <h3 class="font-bold text-lg mb-4 text-[#3B4D4D]">Declaración y Aceptación Final</h3>
+                    <div class="flex items-start bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <input id="aceptoTerminos" name="aceptoTerminos" type="checkbox" class="mt-1 h-5 w-5 text-[#3B4D4D] border-gray-300 rounded focus:ring-[#3B4D4D] cursor-pointer">
+                        <label for="aceptoTerminos" id="labelAceptoTerminos" class="ml-3 block text-sm text-gray-700 leading-relaxed cursor-pointer"></label>
+                    </div>
+                </div>
+
+                <div id="consent-error" class="text-red-600 text-center font-semibold hidden mt-4">Ambos deben estar de acuerdo y aceptar los términos para poder continuar.</div>
+                <div class="text-center mt-6"><button type="button" id="continueToSignatureButton" class="btn-brand" disabled>Continuar a las Firmas</button></div>
+            </div>
+        </div>
+    </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+    const demographicsForm = document.getElementById('demographicsForm');
+    const consentimientoContainer = document.getElementById('consentimientoContainer');
+    const showConsentButton = document.getElementById('showConsentButton');
+    const continueToSignatureButton = document.getElementById('continueToSignatureButton');
+    
+    let geodata = {};
+    document.getElementById('fechaDiligenciamiento').valueAsDate = new Date();
+    
+    async function cargarGeodata() {
+        try {
+            const response = await fetch('geodata.json');
+            geodata = await response.json();
+            poblarPaises('1');
+            poblarPaises('2');
+        } catch (error) { console.error('Error cargando geodata:', error); }
+    }
+
+    function poblarPaises(suffix) {
+        const select = document.getElementById('pais' + suffix);
+        select.innerHTML = '<option value="">Seleccione un país</option>';
+        Object.keys(geodata).forEach(continente => {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = continente;
+            if (geodata[continente]) {
+                Object.keys(geodata[continente]).sort().forEach(pais => {
+                    const option = document.createElement('option');
+                    option.value = pais; option.textContent = pais;
+                    optgroup.appendChild(option);
+                });
+                select.appendChild(optgroup);
+            }
+        });
+    }
+
+    function poblarDepartamentos(pais, suffix) {
+        const select = document.getElementById('departamento' + suffix);
+        select.innerHTML = '<option value="">Seleccione Departamento</option>';
+        let departamentos = [];
+        for (const cont in geodata) { if (geodata[cont] && geodata[cont][pais]) { departamentos = Object.keys(geodata[cont][pais]); break; } }
+        departamentos.sort().forEach(depto => {
+            const option = document.createElement('option');
+            option.value = depto; option.textContent = depto;
+            select.appendChild(option);
+        });
+    }
+
+    function poblarMunicipios(pais, depto, suffix) {
+        const select = document.getElementById('municipio' + suffix);
+        select.innerHTML = '<option value="">Seleccione Municipio</option>';
+        let municipios = [];
+        for (const cont in geodata) { if (geodata[cont] && geodata[cont][pais] && geodata[cont][pais][depto]) { municipios = geodata[cont][pais][depto]; break; } }
+        municipios.sort().forEach(mun => {
+            const option = document.createElement('option');
+            option.value = mun; option.textContent = mun;
+            select.appendChild(option);
+        });
+    }
+
+    function calcularEdad(fechaNacimiento) {
+        const hoy = new Date(); const nacimiento = new Date(fechaNacimiento);
+        let edad = hoy.getFullYear() - nacimiento.getFullYear();
+        const mes = hoy.getMonth() - nacimiento.getMonth();
+        if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) { edad--; }
+        return edad;
+    }
+    
+    function actualizarTipoDocumento(suffix) {
+        const pais = document.getElementById('pais' + suffix).value;
+        const edad = parseInt(document.getElementById('edad' + suffix).value, 10);
+        const select = document.getElementById('tipoDocumento' + suffix);
+        select.innerHTML = '';
+        let opciones = pais === 'Colombia' ? ['Cédula de Ciudadanía', 'Cédula de Extranjería', 'Pasaporte'] : ['Documento Nacional de Identidad', 'Pasaporte'];
+        opciones.forEach(op => {
+            const option = document.createElement('option'); option.value = op; option.textContent = op; select.appendChild(option);
+        });
+    }
+
+    // Configuración de eventos por paciente
+    ['1', '2'].forEach(suffix => {
+        const paisSelect = document.getElementById('pais' + suffix);
+        const deptoSelect = document.getElementById('departamento' + suffix);
+        const fechaNacimientoInput = document.getElementById('fechaNacimiento' + suffix);
+        
+        paisSelect.addEventListener('change', () => {
+            const pais = paisSelect.value;
+            document.getElementById('departamentoContainer' + suffix).classList.add('hidden');
+            document.getElementById('municipioContainer' + suffix).classList.add('hidden');
+            document.getElementById('ciudadContainer' + suffix).classList.add('hidden');
+            const labelEps = document.getElementById('labelEps' + suffix);
+            
+            if (pais === 'Colombia') {
+                poblarDepartamentos(pais, suffix);
+                document.getElementById('departamentoContainer' + suffix).classList.remove('hidden');
+                labelEps.textContent = 'EPS';
+            } else if (pais) {
+                document.getElementById('ciudadContainer' + suffix).classList.remove('hidden');
+                labelEps.textContent = 'Servicio de Salud';
+            } else {
+                labelEps.textContent = 'EPS / Servicio de Salud';
+            }
+            actualizarTipoDocumento(suffix);
+        });
+
+        deptoSelect.addEventListener('change', () => {
+            document.getElementById('municipioContainer' + suffix).classList.remove('hidden');
+            poblarMunicipios(paisSelect.value, deptoSelect.value, suffix);
+        });
+
+        fechaNacimientoInput.addEventListener('change', function() {
+            if (this.value) {
+                document.getElementById('edad' + suffix).value = calcularEdad(this.value);
+                actualizarTipoDocumento(suffix);
+            }
+        });
+    });
+
+    await cargarGeodata();
+
+    function updateDeclaracionTextPareja() {
+        const n1 = document.getElementById('nombreCompleto1').value || '[Paciente 1]';
+        const n2 = document.getElementById('nombreCompleto2').value || '[Paciente 2]';
+        const modalidad = document.querySelector('input[name="modalidad"]:checked').value;
+        const labelObj = document.getElementById('labelAceptoTerminos');
+        
+        labelObj.innerHTML = `Declaramos y damos fe de que nosotros, <strong>${n1}</strong> y <strong>${n2}</strong>, hemos leído y comprendido este documento durante una sesión <strong>${modalidad}</strong> con la Psicóloga Laura Jiménez Rivero, donde se nos ha garantizado un espacio para hacer preguntas, las cuales han sido respondidas a nuestra entera satisfacción. Al marcar esta casilla, aceptamos todos los términos descritos anteriormente.`;
+    }
+
+    document.querySelectorAll('input[name="modalidad"]').forEach(radio => {
+        radio.addEventListener('change', updateDeclaracionTextPareja);
+    });
+
+    showConsentButton.addEventListener('click', function() {
+        if (!demographicsForm.checkValidity()) {
+            demographicsForm.reportValidity();
+            document.getElementById('form-error').classList.remove('hidden');
+            return;
+        }
+        document.getElementById('form-error').classList.add('hidden');
+        demographicsForm.classList.add('hidden');
+        consentimientoContainer.classList.remove('hidden');
+        document.getElementById('page-subtitle').textContent = "Por favor, lean y acepten los siguientes términos conjuntos.";
+        window.scrollTo(0, 0);
+
+        const nombre1 = document.getElementById('nombreCompleto1').value;
+        const doc1 = document.getElementById('documentoIdentidad1').value;
+        const nombre2 = document.getElementById('nombreCompleto2').value;
+        const doc2 = document.getElementById('documentoIdentidad2').value;
+
+        document.getElementById('consentimientoIntro').textContent = `Nosotros, ${nombre1} (Doc: ${doc1}) y ${nombre2} (Doc: ${doc2}), declaramos voluntariamente que:`;
+        
+        updateDeclaracionTextPareja();
+    });
+
+    const aceptoTerminosCheckbox = document.getElementById('aceptoTerminos');
+    aceptoTerminosCheckbox.addEventListener('change', function() {
+        continueToSignatureButton.disabled = !this.checked;
+        if (this.checked) document.getElementById('consent-error').classList.add('hidden');
+    });
+
+    continueToSignatureButton.addEventListener('click', function() {
+        if (!aceptoTerminosCheckbox.checked) return;
+        const formData = new FormData(demographicsForm);
+        const datosDemograficos = Object.fromEntries(formData.entries());
+        // Guardamos la modalidad
+        datosDemograficos.modalidad = document.querySelector('input[name="modalidad"]:checked').value;
+
+        try {
+            sessionStorage.setItem('consentimiento_parejas', JSON.stringify(datosDemograficos));
+            window.location.href = 'firmaparejas.html';
+        } catch (error) {
+            console.error("Error al guardar:", error);
+        }
+    });
+});
+</script>
+</body>
+</html>

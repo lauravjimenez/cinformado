@@ -1,0 +1,18 @@
+/* Importación nativa de Tailwind v4 */
+@import "tailwindcss";
+
+/* Le indicamos a Tailwind que escanee todos los archivos HTML y JS en este directorio */
+@source "./**/*.html";
+@source "./**/*.js";
+
+/* En Tailwind v4, la configuración del tema se hace directamente en CSS */
+@theme {
+  /* Aquí podemos definir variables semánticas si queremos dejar de usar bg-[#3B4D4D] en el futuro */
+  --color-brand-blue: #3B4D4D;
+  --color-brand-dark: #2C3A38;
+}
+
+/* 
+  Cualquier CSS personalizado adicional se coloca aquí abajo.
+  Por ahora, Tailwind se encarga del 99% de nuestro diseño.
+*/

@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historia Clínica - Vincula</title>
+        <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #F8F7F2; color: #4A4A4A; }
+        .card { background-color: white; border-radius: 16px; padding: 2rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        
+        .input-styled, .textarea-styled { 
+            border: 1px solid #d1d5db; border-radius: 8px; padding: 12px 15px; width: 100%; transition: all 0.3s ease; 
+        }
+        .textarea-styled { resize: none; overflow: hidden; min-height: 80px; }
+        .input-styled:focus, .textarea-styled:focus { outline: none; border-color: #3B4D4D; box-shadow: 0 0 0 2px rgba(59, 77, 77, 0.2); }
+        
+        .min-h-input { min-height: 48px !important; }
+        
+        .strike-indicator { transition: all 0.3s; }
+        .strike-active { background-color: #ef4444; border-color: #ef4444; }
+
+        .timeline-card { cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .timeline-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-color: #3B4D4D; }
+        
+        .print-avoid-break { break-inside: avoid; page-break-inside: avoid; }
+
+        @media print {
+            body { background-color: white !important; }
+            .no-print, header, .tab-btn, button, #evolucionFormBox, #sessionModal, #editDemoModal, #bannerUI, #toastBorrador, #qrModal { display: none !important; }
+            .card { box-shadow: none !important; border: 1px solid #e5e7eb; padding: 1rem !important; margin-bottom: 1rem; }
+            
+            #tab-sesion-cero, #tab-plan-trabajo, #tab-evolucion { display: block !important; }
+            .print-only { display: block !important; }
+            
+            input { border: none !important; background: transparent !important; }
+            input[type="checkbox"] { display: none !important; }
+            .print-checkbox-indicator { display: inline-block !important; width: 12px; height: 12px; border: 1px solid black; margin-right: 5px; }
+            .print-checkbox-indicator.checked { background-color: black; }
+            
+            textarea { display: none !important; }
+            
+            .print-textarea-clone { 
+                display: block !important; border: none !important; background: transparent !important; 
+                white-space: pre-wrap !important; word-wrap: break-word !important; 
+                height: auto !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important;
+                color: inherit !important; font-family: inherit !important; font-size: inherit !important;
+            }
+            
+            .timeline-card { cursor: default; transform: none !important; box-shadow: none !important; border: 1px solid #e5e7eb !important; }
+            .timeline-card p.line-clamp-3 { display: none; }
+            .timeline-card p.print-full-text { display: block !important; white-space: pre-wrap; }
+        }
+
+        body.print-mode-plan #mainContent, 
+        body.print-mode-plan header, 
+        body.print-mode-plan #toastBorrador,
+        body.print-mode-plan #sessionModal,
+        body.print-mode-plan #editDemoModal,
+        body.print-mode-plan #qrModal { display: none !important; }
+        body.print-mode-plan #printPlanView { display: block !important; }
+        
+        #printPlanView { display: none; } 
+        @media print {
+            body:not(.print-mode-plan) #printPlanView { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <a href="portal-consentimientos.html" class="flex-shrink-0">
+                    <img src="logoprincipal.png" alt="Vincula Logo" class="h-10 w-auto">
+                </a>
+                <span class="border-l h-6 mx-2 hidden md:block border-gray-300"></span>
+                <a href="portal-consentimientos.html" class="text-sm font-medium text-gray-600 hover:text-[#3B4D4D] flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                    Volver al Dashboard
+                </a>
+                <span class="border-l h-6 mx-2 hidden md:block border-gray-300"></span>
+                <h1 class="text-xl font-bold text-[#3B4D4D] hidden md:block">Psicología que Transforma</h1>
+            </div>
+            <button id="logoutButton" class="text-sm font-medium text-red-600 hover:text-red-800 transition-colors">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-8 relative">
+        <div class="max-w-6xl mx-auto space-y-6">
+            
+            <div id="printPlanView" class="w-full bg-white print:p-0 print:w-full">
+                <div class="text-center mb-8">
+                    <img src="logoprincipal.png" alt="Vincula Logo" class="h-28 w-auto mx-auto mb-6">
+                    <h1 class="text-2xl font-bold text-[#3B4D4D] uppercase tracking-wide">Plan de Trabajo Personalizado</h1>
+                    <h2 class="text-lg font-bold text-gray-800 mt-6 text-left" id="printPlanPacienteName">PACIENTE: </h2>
+                </div>
+                <table class="w-full text-left border-collapse mb-12">
+                    <thead>
+                        <tr class="bg-[#3B4D4D] text-white">
+                            <th class="border border-[#3B4D4D] p-3 text-center w-24">N° Sesión</th>
+                            <th class="border border-[#3B4D4D] p-3 w-1/3">Temática</th>
+                            <th class="border border-[#3B4D4D] p-3">Objetivo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="printPlanTableBody" class="text-gray-800 text-sm align-top">
+                    </tbody>
+                </table>
+                <div class="text-center text-sm text-[#3B4D4D] font-bold mt-16 border-t-2 border-[#3B4D4D] pt-6">
+                    <p>Contacto WhatsApp al 3146745271</p>
+                    <p>psic@lauravjimenez.com</p>
+                    <p>www.lauravjimenez.com</p>
+                    <p>Barranquilla - Colombia</p>
+                </div>
+            </div>
+
+            <div id="loading" class="text-center py-10">
+                <p class="text-lg animate-pulse text-[#3B4D4D] font-semibold">Desencriptando expediente del paciente...</p>
+            </div>
+
+            <div id="mainContent" class="hidden space-y-6">
+                
+                                <div id="bannerUI" style="background-color:#3B4D4D;color:#ffffff;" class="card bg-[#3B4D4D] text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 print:hidden">
+                    <div>
+                        <h2 id="pacienteNombre" class="text-2xl font-bold">Cargando Nombre...</h2>
+                        <p class="text-sm text-blue-200 mt-1">
+                            <span id="pacienteDoc">Doc: ---</span> | 
+                            <span id="pacienteEdad">Edad: ---</span> | 
+                            <span id="pacienteContacto">Tel: ---</span>
+                        </p>
+                        <div class="mt-2 text-xs text-white">
+                            <span class="bg-blue-800/80 border border-blue-400/30 px-3 py-1.5 rounded-full inline-flex items-center">
+                                🗓️ Próxima Cita: <strong class="ml-1" id="bannerProximaCita">No agendada</strong>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="text-right flex flex-col items-end">
+                        <span class="px-3 py-1 text-xs font-bold bg-green-500 text-white rounded-full mb-2">Consentimiento Verificado</span>
+                        <p class="text-xs text-blue-200">ID: <span id="pacienteId" class="font-mono">---</span></p>
+                        <button onclick="window.print()" class="mt-3 text-sm flex items-center bg-white text-[#3B4D4D] font-bold px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors shadow-sm">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Descargar Historial Completo (PDF)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm print:shadow-none print:border-b-2 print:border-gray-800 print:rounded-none print:pb-6 print:mb-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 print:flex-row print:items-center">
+                        <img src="logoprincipal.png" alt="Vincula Logo" class="h-12 w-auto print:h-14">
+                        <div class="text-left md:text-right print:text-right">
+                            <h2 class="text-2xl font-bold text-[#3B4D4D] uppercase tracking-wider print:text-black">Historia Clínica</h2>
+                            <div class="flex items-center justify-start md:justify-end gap-3 mt-1">
+                                <p class="text-sm text-gray-500 font-semibold uppercase tracking-wider print:text-gray-700">Ficha de Identificación</p>
+                                <button type="button" onclick="openEditDemoModal()" class="no-print flex items-center bg-gray-100 hover:bg-gray-200 text-[#3B4D4D] px-3 py-1.5 rounded-full text-xs font-bold transition-colors shadow-sm">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    Actualizar Datos
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-4 gap-x-6 text-sm border-t border-gray-100 pt-4 print:border-gray-300" id="fichaData">
+                        </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-blue-50 to-white border border-blue-100 p-6 rounded-xl print:bg-white print:border-b-2 print:border-t-0 print:border-x-0 print:border-gray-800 print:rounded-none print:shadow-none mb-6">
+                    <div class="flex justify-between items-center mb-3 print:mb-2">
+                        <h3 class="text-lg font-bold text-[#3B4D4D] uppercase tracking-wider flex items-center print:text-black">
+                            <svg class="w-5 h-5 mr-2 print:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Perfil Ejecutivo del Paciente
+                        </h3>
+                        <button type="button" onclick="generarPerfilAuto()" class="no-print text-xs font-bold text-[#3B4D4D] hover:text-blue-800 flex items-center bg-blue-100 px-3 py-1.5 rounded-full transition-colors shadow-sm">
+                            ✨ Autogenerar con HALCÓN
+                        </button>
+                    </div>
+                    <textarea id="perfilEjecutivo" rows="2" class="textarea-styled text-sm text-gray-800 bg-white/80 border-blue-200 focus:border-[#3B4D4D] mb-4" placeholder="Resume aquí el perfil general del paciente, su contexto y hacia dónde evoluciona..."></textarea>
+                    
+                    <div class="mt-4 border-t border-blue-100 pt-4 print:border-gray-300 print:mt-3 print:pt-3">
+                        <h3 class="text-md font-bold text-[#3B4D4D] flex items-center mb-2 print:text-black">
+                            <span class="mr-2 print:hidden">🎯</span> Propósito de Vida Definido
+                        </h3>
+                        <textarea id="propositoVida" rows="2" class="textarea-styled text-sm text-gray-800 bg-white border-blue-200 focus:border-[#3B4D4D]" placeholder="Cuando el paciente logre definir su propósito de vida, escríbelo aquí para tenerlo siempre presente a primera vista..."></textarea>
+                    </div>
+
+                    <div class="text-right mt-4 no-print">
+                        <span id="perfil-success" class="text-green-600 font-medium text-xs mr-3 hidden">¡Datos Guardados!</span>
+                        <button onclick="savePerfil()" id="btnSavePerfil" class="text-xs bg-white border border-[#3B4D4D] text-[#3B4D4D] px-4 py-1.5 rounded-lg font-bold hover:bg-blue-50 transition-colors shadow-sm">Guardar Perfil y Propósito</button>
+                    </div>
+                </div>
+
+                <div class="flex bg-gray-200/70 p-1.5 rounded-xl border border-gray-200 no-print overflow-x-auto space-x-2 mb-6 shadow-inner">
+                    <button class="tab-btn bg-[#3B4D4D] text-white shadow-md rounded-lg px-6 py-3 font-bold flex items-center whitespace-nowrap transition-all" onclick="switchTab('tab-sesion-cero', this)">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg>
+                        1. Sesión Cero (HALCÓN)
+                    </button>
+                    <button class="tab-btn text-gray-600 hover:bg-white hover:text-[#3B4D4D] rounded-lg px-6 py-3 font-bold flex items-center whitespace-nowrap transition-all" onclick="switchTab('tab-plan-trabajo', this)">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                        2. Plan de Trabajo
+                    </button>
+                    <button class="tab-btn text-gray-600 hover:bg-white hover:text-[#3B4D4D] rounded-lg px-6 py-3 font-bold flex items-center whitespace-nowrap transition-all" onclick="switchTab('tab-evolucion', this)">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        3. Bitácora & Evolución
+                    </button>
+                </div>
+
+                <div id="tab-sesion-cero" class="card print:mt-4">
+                    <h3 class="text-2xl font-bold mb-6 border-b pb-2 text-gray-800">Diagnóstico y Encuadre Inicial</h3>
+                    <form id="historiaForm" class="space-y-8">
+                        <div class="space-y-4 bg-gray-50 p-6 rounded-xl border border-gray-200 print:bg-white print:border-none print:p-0">
+                            <h4 class="text-lg font-bold text-[#3B4D4D] mb-4">Contexto Vital y Antecedentes</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div><label class="block mb-2 font-semibold text-gray-700">A qué se dedica (Ocupación)</label><textarea id="ocupacion" rows="1" class="textarea-styled min-h-input bg-white" placeholder="Ej. Ingeniero, Estudiante, etc."></textarea></div>
+                                <div><label class="block mb-2 font-semibold text-gray-700">Con quién vive</label><textarea id="convivencia" rows="1" class="textarea-styled min-h-input bg-white" placeholder="Ej. Pareja, padres, solo..."></textarea></div>
+                                
+                                <div><label class="block mb-2 font-semibold text-gray-700">Hobbies / Pasatiempos</label><textarea id="hobbies" rows="2" class="textarea-styled" placeholder="¿Qué disfruta hacer en su tiempo libre?"></textarea></div>
+                                <div><label class="block mb-2 font-semibold text-gray-700">No Hobbies (Lo que le desagrada)</label><textarea id="noHobbies" rows="2" class="textarea-styled" placeholder="Actividades o situaciones que prefiere evitar..."></textarea></div>
+                                <div class="md:col-span-2"><label class="block mb-2 font-semibold text-gray-700">Antecedentes Médicos</label><textarea id="antecedentesMedicos" rows="2" class="textarea-styled" placeholder="Enfermedades crónicas, operaciones médicas relevantes, etc."></textarea></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="flex flex-col md:flex-row md:items-center justify-between border-b pb-2 mb-4 gap-4">
+                                <h4 class="text-lg font-bold text-[#3B4D4D]">Diagnóstico Existencial (Método HALCÓN)</h4>
+                                <div class="mt-2 md:mt-0 flex flex-wrap gap-4 items-center">
+                                    <div class="flex items-center space-x-3 print:hidden">
+                                        <div class="flex items-center">
+                                            <label class="text-sm font-semibold text-gray-600 mr-2" title="Valor pagado en esta sesión">Valor ($):</label>
+                                            <input type="number" id="valorSesionCero" class="input-styled text-sm py-1 px-2 w-28 bg-white" placeholder="Ej. 180000" min="0">
+                                        </div>
+                                        <div class="flex items-center bg-white border border-gray-300 rounded-lg px-3 py-1">
+                                            <input type="checkbox" id="pagadoSesionCero" class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer">
+                                            <label for="pagadoSesionCero" class="ml-2 text-sm font-bold text-gray-700 cursor-pointer">Pagado</label>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <label class="text-sm font-semibold text-gray-600 mr-2">Fecha:</label>
+                                        <input type="date" id="fechaSesionCero" class="input-styled text-sm py-1 px-2 w-auto bg-white" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div><label class="block mb-2 font-bold text-gray-800">1. Motivo de Consulta</label><textarea id="motivoConsulta" rows="4" class="textarea-styled" placeholder="Describe el motivo de consulta del paciente..."></textarea></div>
+                            <div><label class="block mb-2 font-bold text-[#3B4D4D]">2. [H] - Habilidades y Esencia</label><textarea id="habilidades" rows="3" class="textarea-styled" placeholder="¿Qué herramientas internas posee hoy?"></textarea></div>
+                            <div><label class="block mb-2 font-bold text-[#3B4D4D]">3. [A] - Aspiración / Meta del Proyecto</label><textarea id="aspiracion" rows="3" class="textarea-styled" placeholder="Visión a alcanzar al final de las sesiones..."></textarea></div>
+                            <div><label class="block mb-2 font-bold text-[#3B4D4D]">4. [L] - Lógica (Filtros y Creencias)</label><textarea id="creencias" rows="3" class="textarea-styled" placeholder="¿Qué creencias están bloqueando su proyecto de vida?"></textarea></div>
+                            <div><label class="block mb-2 font-bold text-[#3B4D4D]">5. [C] - Construcción y Concreción</label><textarea id="construccion" rows="3" class="textarea-styled" placeholder="Proyectos específicos, pasos a seguir y fechas tentativas..."></textarea></div>
+                            <div><label class="block mb-2 font-bold text-[#3B4D4D]">6. [O] - Orientación y Adaptación</label><textarea id="orientacion" rows="3" class="textarea-styled" placeholder="Estrategias de afrontamiento, resolución de conflictos..."></textarea></div>
+                            <div><label class="block mb-2 font-bold text-[#3B4D4D]">7. [N] - Nutrición y Trascendencia</label><textarea id="nutricion" rows="3" class="textarea-styled" placeholder="Prácticas de autocuidado, contribución al entorno y legado..."></textarea></div>
+                        </div>
+
+                        <div class="pt-6 border-t border-gray-200 mt-6 print:mt-4 print:pt-4">
+                            <div class="mb-6 bg-blue-50 p-5 rounded-xl border border-blue-100 print:bg-white print:border-none print:p-0">
+                                <h4 class="text-lg font-bold text-[#3B4D4D] mb-2 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 print:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                                    Cierre de Sesión Inicial
+                                </h4>
+                                <label class="block font-bold text-gray-800 mb-2">¿Cómo te sientes y qué te llevas?</label>
+                                <textarea id="cierreSesionCero" rows="3" class="textarea-styled bg-white" placeholder="Reflexión final del paciente al cerrar la sesión..."></textarea>
+                            </div>
+
+                            <div class="flex items-start no-print">
+                                <div class="flex items-center h-5"><input id="compromisoStrikes" type="checkbox" class="w-5 h-5 text-[#3B4D4D] border-gray-300 rounded focus:ring-[#3B4D4D]"></div>
+                                <div class="ml-3 text-sm"><label for="compromisoStrikes" class="font-bold text-gray-800">Acuerdo de la Regla de los "3 Strikes"</label><p class="text-gray-500">El paciente comprende y acepta que el éxito del proyecto depende de su acción, y que al 3er incumplimiento injustificado, el proceso será finalizado.</p></div>
+                            </div>
+                        </div>
+
+                        <div id="form-error" class="hidden text-red-600 font-medium text-sm text-center no-print">Por favor diligencia al menos el Motivo de Consulta y la fecha.</div>
+                        <div id="form-success" class="hidden text-green-600 font-medium text-sm text-center no-print">Sesión Cero guardada exitosamente y firmada con TimeStamp.</div>
+                        <div class="text-right pt-4 no-print"><button type="submit" id="btnSave" class="bg-[#3B4D4D] text-white px-8 py-3 rounded-full font-bold hover:bg-[#2C3A38] transition-colors shadow-lg">Guardar y Sellar Sesión Cero</button></div>
+                    </form>
+                </div>
+
+                <div id="tab-plan-trabajo" class="card hidden print:!block print:!shadow-none print:!border-none print:!p-0 print:!mt-8">
+                    <h3 class="text-2xl font-bold mb-6 border-b pb-2 text-gray-800">Plan de Trabajo Individual</h3>
+                    <p class="text-xs text-gray-500 mb-4 no-print">Marca la casilla de cada sesión cuando haya sido completada para llevar un control visual de avance.</p>
+                    <div id="planContainer" class="space-y-4"></div>
+                    <button onclick="addPlanRow()" class="no-print mt-4 flex items-center text-[#3B4D4D] font-bold text-sm hover:underline"><svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>Añadir Nueva Sesión al Plan</button>
+                    
+                    <div class="text-right pt-4 no-print border-t border-gray-200 mt-8">
+                        <div id="plan-success" class="hidden text-green-600 font-medium text-sm text-center mb-3">Plan de trabajo guardado exitosamente.</div>
+                        <div class="flex flex-col sm:flex-row justify-end gap-3">
+                            <button onclick="printPlanOnly()" type="button" class="bg-white border border-[#3B4D4D] text-[#3B4D4D] px-6 py-3 rounded-full font-bold hover:bg-blue-50 transition-colors shadow-sm flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Descargar Plan de Trabajo
+                            </button>
+                            <button onclick="savePlan()" id="btnSavePlan" class="bg-[#3B4D4D] text-white px-8 py-3 rounded-full font-bold hover:bg-[#2C3A38] transition-colors shadow-lg">Guardar Plan de Trabajo</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-evolucion" class="card hidden print:!block print:!shadow-none print:!border-none print:!p-0 print:!mt-8">
+                    <div class="max-w-4xl mx-auto space-y-10">
+                        
+                        <!-- 1. BLOQUE DE REGISTRO -->
+                        <div class="space-y-6" id="evolucionFormBox">
+                            <div class="bg-red-50 border border-red-100 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between">
+                                <div><h3 class="text-lg font-bold text-red-800">Tracker de Voluntad</h3><p class="text-xs text-red-600">Regla de los 3 Strikes</p></div>
+                                <div class="flex items-center space-x-4 mt-4 sm:mt-0">
+                                    <div class="flex space-x-2">
+                                        <div id="strike1" class="strike-indicator w-8 h-8 rounded-full border-2 border-red-300 bg-white flex items-center justify-center font-bold text-red-300 text-sm">1</div>
+                                        <div id="strike2" class="strike-indicator w-8 h-8 rounded-full border-2 border-red-300 bg-white flex items-center justify-center font-bold text-red-300 text-sm">2</div>
+                                        <div id="strike3" class="strike-indicator w-8 h-8 rounded-full border-2 border-red-300 bg-white flex items-center justify-center font-bold text-red-300 text-sm">3</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p id="strikeMessage" class="text-sm font-semibold text-gray-700 text-center sm:text-right mt-[-1rem]">Compromiso estable.</p>
+
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
+                                <h3 class="text-lg font-bold text-[#3B4D4D] mb-4 border-b pb-2">Registrar Nueva Sesión</h3>
+                                <form id="evolucionForm" class="space-y-5">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div><label class="block text-sm font-semibold mb-1">Fecha</label><input type="date" id="evoFecha" class="input-styled text-sm" required></div>
+                                        <div>
+                                            <label class="block text-sm font-semibold mb-1" title="Valor pagado en esta sesión">Valor ($)</label>
+                                            <div class="flex items-center space-x-2">
+                                                <input type="number" id="evoValor" class="input-styled text-sm bg-white w-full" placeholder="Ej. 180000" min="0">
+                                                <div class="flex items-center bg-white border border-gray-300 rounded-lg px-2 py-1 h-[46px]">
+                                                    <input type="checkbox" id="evoPagado" class="w-4 h-4 text-green-600 border-gray-300 rounded cursor-pointer">
+                                                    <label for="evoPagado" class="ml-1 text-xs font-bold text-gray-700 cursor-pointer">Pagado</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div><label class="block text-sm font-semibold mb-1">Tarea Asignada</label><textarea id="evoTarea" rows="1" class="textarea-styled min-h-input text-sm bg-white" placeholder="Ej. Lectura..."></textarea></div>
+                                    </div>
+                                    
+                                    <div><label class="block text-sm font-semibold mb-1">Nota de Evolución</label><textarea id="evoNota" rows="6" class="textarea-styled text-sm" placeholder="Resumen de la sesión, técnicas aplicadas, avances..." required></textarea></div>
+                                    
+                                    <div class="p-4 bg-white border border-gray-200 rounded-lg">
+                                        <div class="flex items-center">
+                                            <input id="hasPrueba" type="checkbox" class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 cursor-pointer" onchange="togglePruebaBox()">
+                                            <label for="hasPrueba" class="ml-2 text-sm font-bold text-purple-800 cursor-pointer">Se aplicó Prueba Psicométrica</label>
+                                        </div>
+                                        <div id="pruebaBox" class="hidden mt-3 pt-3 border-t border-gray-100">
+                                            <label class="block text-xs font-semibold mb-1 text-purple-700">Nombre de la prueba y Resultados</label>
+                                            <textarea id="pruebaResultados" rows="3" class="textarea-styled text-sm border-purple-200 focus:border-purple-500" placeholder="Resultados..."></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-lg">
+                                        <label class="block text-sm font-bold mb-2 text-[#3B4D4D] flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                                            Cierre: ¿Cómo te sientes y qué te llevas?
+                                        </label>
+                                        <textarea id="evoCierre" rows="3" class="textarea-styled text-sm bg-white" placeholder="Reflexión final del paciente al terminar la sesión..."></textarea>
+                                    </div>
+                                    
+                                    <div class="mt-4 p-4 bg-white rounded-lg border border-gray-200">
+                                        <p class="text-xs font-bold text-gray-500 uppercase mb-3">Gestión de Compromiso (Strikes)</p>
+                                        <div class="flex flex-col sm:flex-row gap-3">
+                                            <label class="flex items-center space-x-2 cursor-pointer bg-gray-50 px-3 py-2 rounded border border-gray-200 flex-1 hover:bg-gray-100 transition"><input type="radio" name="strikeAction" value="none" class="w-4 h-4 text-gray-600 focus:ring-gray-500" checked><span class="text-sm font-semibold text-gray-700">Sin cambios</span></label>
+                                            <label class="flex items-center space-x-2 cursor-pointer bg-red-50 px-3 py-2 rounded border border-red-100 flex-1 hover:bg-red-100 transition"><input type="radio" name="strikeAction" value="add" class="w-4 h-4 text-red-600 focus:ring-red-500"><span class="text-sm font-semibold text-red-800">Aplicar Strike</span></label>
+                                            <label class="flex items-center space-x-2 cursor-pointer bg-green-50 px-3 py-2 rounded border border-green-100 flex-1 hover:bg-green-100 transition"><input type="radio" name="strikeAction" value="remove" class="w-4 h-4 text-green-600 focus:ring-green-500"><span class="text-sm font-semibold text-green-800">Remover Strike</span></label>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" id="btnSaveEvo" class="w-full bg-[#3B4D4D] text-white py-3 rounded-lg font-bold hover:bg-[#2C3A38] transition-colors mt-4 text-lg shadow-md">Guardar en Bitácora</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- 2. BLOQUE DE AGENDAR CITA -->
+                        <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-6 print:hidden shadow-sm">
+                            <h3 class="text-lg font-bold text-indigo-800 mb-4 flex items-center border-b border-indigo-100 pb-2">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                Agendar Próxima Cita
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label class="block text-xs font-semibold text-indigo-700 mb-1">Fecha</label><input type="date" id="citaFecha" class="input-styled text-sm bg-white border-indigo-200 focus:border-indigo-500"></div>
+                                    <div><label class="block text-xs font-semibold text-indigo-700 mb-1">Hora</label><input type="time" id="citaHora" class="input-styled text-sm bg-white border-indigo-200 focus:border-indigo-500"></div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-indigo-700 mb-1" title="El sistema recordará este enlace para este paciente.">Enlace Google Meet / Zoom</label>
+                                    <input type="url" id="citaMeet" class="input-styled text-sm bg-white border-indigo-200 focus:border-indigo-500" placeholder="https://meet.google.com/xxx-xxxx-xxx">
+                                </div>
+                                <div class="flex items-center bg-white border border-indigo-200 rounded-lg px-4 py-3 shadow-sm">
+                                    <input type="checkbox" id="citaPresencial" class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer" onchange="toggleDireccion()">
+                                    <label for="citaPresencial" class="ml-3 text-sm font-bold text-indigo-900 cursor-pointer">Cita Predominantemente Presencial</label>
+                                </div>
+                                <div id="boxDireccion" class="hidden mt-2">
+                                    <label class="block text-xs font-semibold text-indigo-700 mb-1" title="El sistema recordará esta dirección.">Dirección del Consultorio</label>
+                                    <input type="text" id="citaDireccion" class="input-styled text-sm bg-white border-indigo-200 focus:border-indigo-500" placeholder="Ej. Edificio X, Consultorio 101, Ciudad">
+                                </div>
+                                <div class="pt-2">
+                                    <button onclick="agendarCita()" id="btnAgendar" class="w-full md:w-auto md:px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg text-sm transition-colors shadow-md flex items-center justify-center mx-auto">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                        Agendar y Enviar Correos
+                                    </button>
+                                </div>
+                                <div id="agendarSuccess" class="hidden text-center text-sm font-bold text-indigo-700 mt-2 bg-indigo-100 py-2 rounded-lg">¡Cita agendada y correos enviados exitosamente!</div>
+                            </div>
+                        </div>
+
+                        <!-- 3. BLOQUE DE HISTORIAL DE SESIONES -->
+                        <div class="border-t border-gray-200 pt-8 print:mt-6 print:pt-4 print:border-none">
+                            <h3 id="historialTitle" class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Historial de Sesiones</h3>
+                            <p class="text-xs text-gray-500 mb-6 no-print flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg> Clic en una sesión para leer detalles, añadir anexos o solicitar validación.</p>
+                            
+                            <div id="timelineContainer" class="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px before:h-full before:w-0.5 before:bg-gray-200 print:before:hidden">
+                                <div id="emptyTimeline" class="text-center py-10 relative z-10 bg-white rounded-xl border border-dashed border-gray-300 print:hidden"><p class="text-gray-500 text-sm">Aún no hay notas de evolución registradas.</p></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card mt-8 bg-white border border-gray-200 print-avoid-break print:shadow-none print:border-none print:mt-12">
+                    <div class="flex flex-col items-center justify-center text-center max-w-sm mx-auto">
+                        <div class="mb-4 text-[#3B4D4D] opacity-80">
+                            <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                        </div>
+                        <div class="w-full border-b border-gray-400 mb-3"></div>
+                        <h3 class="font-bold text-lg text-gray-800">Laura Jiménez Rivero</h3>
+                        <p class="text-sm text-gray-600 font-medium">Psicóloga</p>
+                        <p class="text-sm text-gray-600">TP: 216453</p>
+                        <p class="text-sm text-gray-600">Celular: +57 314 6745271</p>
+                        
+                        <div class="mt-4 px-4 py-3 bg-gray-50 rounded-lg border border-gray-100 w-full text-left">
+                            <p class="text-[10px] text-gray-500 uppercase tracking-wider font-bold mb-1 border-b border-gray-200 pb-1">Metadato de Firma Digital</p>
+                            <p class="text-[10px] text-gray-500 font-mono break-all mt-1" id="firmaMetadato">Generando hash de seguridad...</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="toastBorrador" class="fixed bottom-5 right-5 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 rounded shadow-lg transition-all duration-500 transform translate-y-20 opacity-0 z-50 flex items-center pointer-events-none">
+            <svg class="w-6 h-6 mr-3 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div>
+                <p class="font-bold text-sm">Borrador Restaurado</p>
+                <p class="text-xs" id="toastBorradorDesc">Se recuperó información no guardada.</p>
+            </div>
+        </div>
+    </main>
+
+    <div id="editDemoModal" class="fixed inset-0 bg-[#3B4D4D] bg-opacity-75 hidden z-[60] flex justify-center items-start pt-10 pb-10 px-4 overflow-y-auto backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col relative">
+            <div class="bg-gray-50 border-b border-gray-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
+                <h2 class="text-lg font-bold text-[#3B4D4D] flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    Actualizar Datos del Paciente
+                </h2>
+                <button onclick="closeEditDemoModal()" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="px-6 py-6 overflow-y-auto space-y-6">
+                <p class="text-sm text-gray-500 mb-4">Actualiza la información de contacto y ubicación. (El documento de identidad no es modificable por seguridad legal).</p>
+                
+                <form id="formUpdateDemo" class="space-y-6">
+                    <div>
+                        <h3 id="lbl_tit_p1" class="font-bold text-gray-800 border-b pb-2 mb-3">Datos del Paciente</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Nombre Completo</label><input type="text" id="edit_p1_nombre" class="input-styled text-sm bg-white"></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Tipo de Documento</label><input type="text" id="edit_p1_tipodoc" class="input-styled text-sm bg-white" placeholder="CC, TI, CE, etc."></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Número de Documento</label><input type="text" id="edit_p1_doc" class="input-styled text-sm bg-white"></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Fecha de Nacimiento</label><input type="date" id="edit_p1_fechanac" class="input-styled text-sm bg-white"></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Correo Electrónico</label><input type="email" id="edit_p1_email" class="input-styled text-sm bg-white"></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Teléfono</label><input type="text" id="edit_p1_tel" class="input-styled text-sm bg-white"></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">EPS / Servicio Salud</label><input type="text" id="edit_p1_eps" class="input-styled text-sm bg-white"></div>
+                            <div class="md:col-span-2"><label class="block text-xs font-semibold text-gray-600 mb-1">Dirección de Residencia</label><input type="text" id="edit_p1_dir" class="input-styled text-sm bg-white"></div>
+                        </div>
+                        
+                        <div id="edit_emergencia_p1_container" class="mt-4 pt-4 border-t border-gray-100 hidden">
+                            <h4 class="font-bold text-sm text-red-700 mb-3">Contacto de Emergencia</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><label class="block text-xs font-semibold text-gray-600 mb-1">Nombre</label><input type="text" id="edit_p1_em_nombre" class="input-styled text-sm bg-white"></div>
+                                <div><label class="block text-xs font-semibold text-gray-600 mb-1">Teléfono</label><input type="text" id="edit_p1_em_tel" class="input-styled text-sm bg-white"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="edit_p2_container" class="hidden pt-4 border-t border-gray-200">
+                        <h3 class="font-bold text-gray-800 border-b pb-2 mb-3">Datos del Paciente 2</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Nombre Completo</label><input type="text" id="edit_p2_nombre" class="input-styled text-sm bg-white"></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Tipo de Documento</label><input type="text" id="edit_p2_tipodoc" class="input-styled text-sm bg-white" placeholder="CC, TI, CE, etc."></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Número de Documento</label><input type="text" id="edit_p2_doc" class="input-styled text-sm bg-white"></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Fecha de Nacimiento</label><input type="date" id="edit_p2_fechanac" class="input-styled text-sm bg-white"></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Correo Electrónico</label><input type="email" id="edit_p2_email" class="input-styled text-sm bg-white"></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Teléfono</label><input type="text" id="edit_p2_tel" class="input-styled text-sm bg-white"></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">EPS / Servicio Salud</label><input type="text" id="edit_p2_eps" class="input-styled text-sm bg-white"></div>
+                            <div class="md:col-span-2"><label class="block text-xs font-semibold text-gray-600 mb-1">Dirección de Residencia</label><input type="text" id="edit_p2_dir" class="input-styled text-sm bg-white"></div>
+                        </div>
+                        
+                        <div id="edit_emergencia_p2_container" class="mt-4 pt-4 border-t border-gray-100">
+                            <h4 class="font-bold text-sm text-red-700 mb-3">Contacto de Emergencia</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div><label class="block text-xs font-semibold text-gray-600 mb-1">Nombre</label><input type="text" id="edit_p2_em_nombre" class="input-styled text-sm bg-white"></div>
+                                <div><label class="block text-xs font-semibold text-gray-600 mb-1">Teléfono</label><input type="text" id="edit_p2_em_tel" class="input-styled text-sm bg-white"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="edit_emergencia_container" class="pt-4 border-t border-gray-200">
+                        <h3 class="font-bold text-red-700 border-b border-red-100 pb-2 mb-3">Contacto de Emergencia</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Nombre del Contacto</label><input type="text" id="edit_em_nombre" class="input-styled text-sm bg-white"></div>
+                            <div><label class="block text-xs font-semibold text-gray-600 mb-1">Teléfono de Emergencia</label><input type="text" id="edit_em_tel" class="input-styled text-sm bg-white"></div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex justify-end gap-3">
+                        <button type="button" onclick="closeEditDemoModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors">Cancelar</button>
+                        <button type="button" onclick="saveDemographics(this)" class="px-6 py-2 bg-[#3B4D4D] rounded-lg text-sm font-bold text-white hover:bg-[#2C3A38] shadow-md transition-colors">Guardar Actualización</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="sessionModal" class="fixed inset-0 bg-[#3B4D4D] bg-opacity-75 hidden z-50 flex justify-center items-start pt-10 pb-10 px-4 overflow-y-auto backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col relative">
+            <div class="bg-gray-50 border-b border-gray-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
+                <div>
+                    <h2 class="text-xl font-bold text-[#3B4D4D] flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Expediente de Sesión
+                    </h2>
+                    <p id="modalFecha" class="text-sm font-semibold text-gray-500 mt-1"></p>
+                </div>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <div class="px-6 py-6 overflow-y-auto space-y-6">
+                
+                <div id="modalFirmaPacienteBox" class="hidden p-5 rounded-xl border-2 border-emerald-200 bg-emerald-50 flex flex-col md:flex-row items-center justify-between gap-6 shadow-inner">
+                    <div class="w-full md:w-1/2">
+                        <h4 class="text-base font-bold text-emerald-800 mb-1 flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Sesión Validada y Certificada
+                        </h4>
+                        <p class="text-xs text-emerald-700">Firma electrónica incrustada y verificada bajo el principio de no repudio.</p>
+                        <p class="text-xs text-emerald-600 mt-2 font-mono">Timestamp: <span id="modalFirmaFecha"></span></p>
+                    </div>
+                    <div class="w-full md:w-1/2 flex justify-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                        <img id="modalFirmaImg" src="" class="h-24 object-contain" alt="Firma del Paciente">
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Nota de Evolución / Encuadre</h4>
+                    <div id="modalNota" class="text-gray-800 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg border border-gray-100 text-[15px] leading-relaxed"></div>
+                </div>
+                <div id="modalPruebasContainer" class="hidden">
+                    <h4 class="text-sm font-bold text-purple-600 uppercase tracking-wider mb-2">Evaluación / Pruebas</h4>
+                    <div id="modalPruebas" class="text-purple-900 whitespace-pre-wrap bg-purple-50 p-4 rounded-lg border border-purple-100 text-[15px] leading-relaxed"></div>
+                </div>
+                <div id="modalTareaContainerWrapper" class="bg-blue-50 p-5 rounded-xl border border-blue-200 shadow-sm relative overflow-hidden print:hidden mb-4">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                    <h4 class="text-sm font-bold text-blue-800 uppercase tracking-wider mb-3 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                        Tarea Asignada
+                    </h4>
+                    <div class="flex flex-col gap-3">
+                        <textarea id="modalTareaEdit" rows="2" class="textarea-styled text-sm bg-white border-blue-300 focus:border-blue-600 w-full" placeholder="Escribe aquí la tarea asignada si la olvidaste, o modifícala..."></textarea>
+                        <div class="flex justify-end">
+                            <button onclick="actualizarTareaEvolucion()" id="btnUpdateTarea" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg text-sm transition-colors shadow-sm h-[40px]">
+                                Guardar Tarea
+                            </button>
+                        </div>
+                        <div id="tareaSuccessMsg" class="hidden text-blue-700 text-xs font-bold text-right">¡Tarea guardada exitosamente!</div>
+                    </div>
+                </div>
+                
+                <div id="modalCierreContainer" class="hidden">
+                    <h4 class="text-sm font-bold text-[#3B4D4D] uppercase tracking-wider mb-2">Cierre de Sesión (¿Qué se lleva?)</h4>
+                    <div id="modalCierre" class="text-gray-800 bg-blue-50 p-4 rounded-lg border border-blue-100 font-medium italic text-[15px]"></div>
+                </div>
+
+                <div id="modalAnexosContainer" class="space-y-4"></div>
+                <hr class="border-gray-200">
+                
+                <div id="modalEstadoFinancieroBox" class="bg-green-50 border border-green-200 rounded-xl p-5 relative overflow-hidden print:hidden">
+                    <h4 class="text-md font-bold text-green-800 mb-3 flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Estado Financiero de la Sesión
+                    </h4>
+                    <div class="flex flex-col sm:flex-row gap-4 items-end">
+                        <div class="flex-1">
+                            <label class="block text-xs font-semibold mb-1 text-green-700">Valor ($)</label>
+                            <input type="number" id="modalEvoValor" class="input-styled text-sm bg-white w-full border-green-300 focus:border-green-500" placeholder="Ej. 180000" min="0">
+                        </div>
+                        <div class="flex items-center bg-white border border-green-300 rounded-lg px-3 py-2 h-[42px] mb-[1px]">
+                            <input type="checkbox" id="modalEvoPagado" class="w-4 h-4 text-green-600 border-gray-300 rounded cursor-pointer">
+                            <label for="modalEvoPagado" class="ml-2 text-sm font-bold text-gray-700 cursor-pointer">Marcar como Pagado</label>
+                        </div>
+                        <button onclick="actualizarPagoEvolucion()" id="btnUpdatePago" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg text-sm transition-colors shadow-sm h-[42px] mb-[1px]">
+                            Guardar Pago
+                        </button>
+                        <button onclick="reenviarReciboManual()" id="btnReenviarRecibo" title="Reenviar el recibo de pago al correo del paciente (con copia a ti)" class="bg-white border border-green-600 text-green-700 hover:bg-green-50 font-bold py-2 px-4 rounded-lg text-sm transition-colors shadow-sm h-[42px] mb-[1px]">
+                            Reenviar recibo
+                        </button>
+                    </div>
+                    <div id="pagoSuccessMsg" class="hidden text-green-700 text-xs font-bold mt-3">¡Pago actualizado correctamente en la base de datos!</div>
+                    <div id="reciboMsg" class="hidden text-xs font-bold mt-2"></div>
+                </div>
+
+                <div id="modalAnexosInputBox" class="bg-[#f8f9fa] border border-[#d1d5db] rounded-xl p-5 relative overflow-hidden mt-6">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-yellow-400"></div>
+                    <h4 class="text-md font-bold text-gray-800 mb-2 flex items-center">
+                        <svg class="w-4 h-4 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        Agregar Actualización o Anexo
+                    </h4>
+                    <p class="text-xs text-gray-500 mb-4">Para garantizar la integridad legal del historial, la nota original no puede modificarse. Escribe aquí cualquier actualización. Quedará registrada con fecha y hora actual.</p>
+                    <textarea id="nuevoAnexo" rows="3" class="textarea-styled text-sm bg-white" placeholder="Escribe el anexo o actualización aquí..."></textarea>
+                    <div class="mt-3 flex justify-end">
+                        <button onclick="guardarAnexo()" id="btnSaveAnexo" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-6 rounded-lg text-sm transition-colors shadow-sm">
+                            Sellar Anexo a esta Sesión
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="qrModal" class="fixed inset-0 bg-[#3B4D4D] bg-opacity-90 hidden z-[70] flex justify-center items-center px-4 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col relative p-8 text-center">
+            <button onclick="closeQRModal()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h2 class="text-2xl font-bold text-[#3B4D4D] mb-2">Validación de Sesión</h2>
+            <p class="text-sm text-gray-500 mb-6">El paciente debe escanear este código con la cámara de su celular para firmar y validar la sesión.</p>
+            
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mx-auto w-64 h-64 flex justify-center items-center mb-6" id="qrcodeContainer"></div>
+            
+            <div class="border-t border-gray-200 pt-6 mt-2 space-y-3">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">¿Sesión Virtual?</p>
+                <button onclick="copiarEnlaceVirtual()" id="btnCopyLink" class="w-full bg-indigo-50 border border-indigo-200 text-indigo-700 hover:bg-indigo-100 py-3 rounded-xl font-bold text-sm transition-colors flex items-center justify-center shadow-sm">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    Copiar Enlace para WhatsApp/Meet
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" id="currentSessionIdModal">
+    <input type="hidden" id="qrLinkHidden">
+
+    <script>
+        let currentStrikes = 0;
+        let evoluciones = [];
+        let planTrabajo = [];
+        let globalEmailPaciente = '';
+        let globalFechaConsentimiento = null; 
+        
+        let draftCeroKey = '';
+        let draftPlanKey = '';
+        let draftEvoKey = '';
+        let draftPerfilKey = '';
+        
+        let globalPatientDataForEdit = null;
+        let globalIsParejaForEdit = false;
+        let firmaSesionCeroGlobal = null;
+        let fechaFirmaSesionCeroGlobal = null;
+
+        // NUEVAS FUNCIONES: Decodificador de seguridad para mostrar comillas y símbolos correctamente
+        function decodeEntities(text) {
+            if (typeof text !== 'string') return text;
+            return text.replace(/&amp;/g, "&")
+                       .replace(/&lt;/g, "<")
+                       .replace(/&gt;/g, ">")
+                       .replace(/&quot;/g, '"')
+                       .replace(/&#39;/g, "'")
+                       .replace(/&#x27;/g, "'")
+                       .replace(/&#x2F;/g, "/");
+        }
+
+        function deepDecodeEntities(data) {
+            if (typeof data === 'string') return decodeEntities(data);
+            if (Array.isArray(data)) return data.map(deepDecodeEntities);
+            if (typeof data === 'object' && data !== null) {
+                const decoded = {};
+                for (const key in data) {
+                    decoded[key] = deepDecodeEntities(data[key]);
+                }
+                return decoded;
+            }
+            return data;
+        }
+
+        function calcularEdadActual(fechaNacStr, edadGuardada) {
+            if (!fechaNacStr) return edadGuardada || "N/A";
+            try {
+                let partes = fechaNacStr.split('-');
+                if (partes.length === 3) {
+                    const ano = parseInt(partes[0], 10);
+                    const mes = parseInt(partes[1], 10) - 1; 
+                    const dia = parseInt(partes[2], 10);
+                    
+                    const hoy = new Date();
+                    let edadCalculada = hoy.getFullYear() - ano;
+                    if (hoy.getMonth() < mes || (hoy.getMonth() === mes && hoy.getDate() < dia)) {
+                        edadCalculada--;
+                    }
+                    return edadCalculada;
+                }
+                return edadGuardada || "N/A";
+            } catch (e) {
+                return edadGuardada || "N/A";
+            }
+        }
+
+        function formatearFechaAmigable(fechaStr) {
+            if (!fechaStr) return '';
+            const meses = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+            
+            if (fechaStr.includes('T')) {
+                const [ano, mes, dia] = fechaStr.split('T')[0].split('-');
+                return `${ano} - ${meses[parseInt(mes, 10) - 1]} - ${dia}`;
+            }
+
+            if (fechaStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                const [ano, mes, dia] = fechaStr.split('-');
+                return `${ano} - ${meses[parseInt(mes, 10) - 1]} - ${dia}`;
+            }
+            
+            if (fechaStr.includes('/')) {
+                try {
+                    const partes = fechaStr.split(',');
+                    const fechaLocal = partes[0].trim();
+                    const horaLocal = partes[1] ? partes[1].trim() : '';
+                    
+                    const [dia, mes, ano] = fechaLocal.split('/');
+                    const fechaFormateada = `${ano} - ${meses[parseInt(mes, 10) - 1]} - ${dia.padStart(2, '0')}`;
+                    return horaLocal ? `${fechaFormateada} (${horaLocal})` : fechaFormateada;
+                } catch(e) {
+                    return fechaStr;
+                }
+            }
+            return fechaStr;
+        }
+
+        function formatCurrency(value) {
+            if (!value || isNaN(value)) return '';
+            return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(value);
+        }
+
+        function resizeAllTextareas() {
+            document.querySelectorAll('textarea').forEach(el => {
+                el.style.height = 'auto'; 
+                el.style.height = (el.scrollHeight) + 'px';
+            });
+        }
+
+        document.addEventListener('input', function(e) {
+            if (e.target.tagName.toLowerCase() === 'textarea') {
+                e.target.style.height = 'auto';
+                e.target.style.height = (e.target.scrollHeight) + 'px';
+            }
+        });
+
+        window.addEventListener('beforeprint', () => {
+            document.querySelectorAll('textarea').forEach(el => {
+                const div = document.createElement('div');
+                div.className = el.className + ' print-textarea-clone';
+                div.textContent = el.value || ''; 
+                el.style.display = 'none'; 
+                el.parentNode.insertBefore(div, el.nextSibling); 
+            });
+            document.querySelectorAll('input[type="checkbox"]').forEach(el => {
+                if(el.closest('#planContainer')) {
+                    const ind = document.createElement('span');
+                    ind.className = 'print-checkbox-indicator ' + (el.checked ? 'checked' : '');
+                    el.parentNode.insertBefore(ind, el);
+                }
+            });
+        });
+
+        window.addEventListener('afterprint', () => {
+            document.querySelectorAll('.print-textarea-clone').forEach(el => el.remove());
+            document.querySelectorAll('textarea').forEach(el => el.style.display = ''); 
+            document.querySelectorAll('.print-checkbox-indicator').forEach(el => el.remove());
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('consultorAuth') !== 'true') { window.location.href = 'login.html'; return; }
+            document.getElementById('logoutButton').addEventListener('click', () => { 
+                sessionStorage.removeItem('consultorAuth'); 
+                Object.keys(localStorage).forEach(key => { if (key.startsWith('draft_')) localStorage.removeItem(key); });
+                window.location.href = 'login.html'; 
+            });
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const patientId = urlParams.get('id');
+            if (!patientId) { document.getElementById('loading').innerHTML = '<span class="text-red-600">Acceso denegado: ID de paciente no proporcionado.</span>'; return; }
+
+            document.getElementById('evoFecha').valueAsDate = new Date();
+            document.getElementById('fechaSesionCero').valueAsDate = new Date();
+            
+            draftCeroKey = `draft_cero_${patientId}`;
+            draftPlanKey = `draft_plan_${patientId}`;
+            draftEvoKey = `draft_evo_${patientId}`;
+            draftPerfilKey = `draft_perfil_${patientId}`;
+            
+            fetchPatientData(patientId);
+            
+            document.getElementById('historiaForm').addEventListener('submit', (e) => { e.preventDefault(); saveSesionCero(patientId); });
+            document.getElementById('evolucionForm').addEventListener('submit', (e) => { e.preventDefault(); addEvolucion(patientId); });
+
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeQRModal(); closeEditDemoModal(); }});
+        });
+
+        function setupAutoSave() {
+            const formCero = document.getElementById('historiaForm');
+            formCero.addEventListener('input', () => {
+                const data = {
+                    fechaSesionCero: document.getElementById('fechaSesionCero').value,
+                    valorSesionCero: document.getElementById('valorSesionCero').value,
+                    pagadoSesionCero: document.getElementById('pagadoSesionCero').checked,
+                    ocupacion: document.getElementById('ocupacion').value,
+                    convivencia: document.getElementById('convivencia').value,
+                    hobbies: document.getElementById('hobbies').value,
+                    noHobbies: document.getElementById('noHobbies').value,
+                    antecedentesMedicos: document.getElementById('antecedentesMedicos').value,
+                    motivoConsulta: document.getElementById('motivoConsulta').value,
+                    habilidades: document.getElementById('habilidades').value,
+                    aspiracion: document.getElementById('aspiracion').value,
+                    creencias: document.getElementById('creencias').value,
+                    construccion: document.getElementById('construccion').value,
+                    orientacion: document.getElementById('orientacion').value,
+                    nutricion: document.getElementById('nutricion').value,
+                    cierreSesionCero: document.getElementById('cierreSesionCero').value,
+                    compromisoStrikes: document.getElementById('compromisoStrikes').checked
+                };
+                localStorage.setItem(draftCeroKey, JSON.stringify(data));
+            });
+
+            const saveEvoDraft = () => {
+                let strikeActionVal = 'none';
+                const strikeChecked = document.querySelector('input[name="strikeAction"]:checked');
+                if (strikeChecked) strikeActionVal = strikeChecked.value;
+                const data = {
+                    fecha: document.getElementById('evoFecha').value,
+                    valor: document.getElementById('evoValor').value,
+                    pagado: document.getElementById('evoPagado').checked,
+                    tarea: document.getElementById('evoTarea').value,
+                    nota: document.getElementById('evoNota').value,
+                    hasPrueba: document.getElementById('hasPrueba').checked,
+                    pruebaResultados: document.getElementById('pruebaResultados').value,
+                    cierre: document.getElementById('evoCierre').value,
+                    strikeAction: strikeActionVal
+                };
+                localStorage.setItem(draftEvoKey, JSON.stringify(data));
+            };
+            const formEvo = document.getElementById('evolucionForm');
+            formEvo.addEventListener('input', saveEvoDraft);
+            formEvo.addEventListener('change', saveEvoDraft);
+
+            document.getElementById('nuevoAnexo').addEventListener('input', (e) => {
+                const evoId = document.getElementById('currentSessionIdModal').value;
+                if(evoId) localStorage.setItem(`draft_anexo_${evoId}`, e.target.value);
+            });
+            
+            const savePerfilDraft = () => {
+                const data = {
+                    perfil: document.getElementById('perfilEjecutivo').value,
+                    proposito: document.getElementById('propositoVida').value
+                };
+                localStorage.setItem(draftPerfilKey, JSON.stringify(data));
+            };
+            document.getElementById('perfilEjecutivo').addEventListener('input', savePerfilDraft);
+            document.getElementById('propositoVida').addEventListener('input', savePerfilDraft);
+        }
+
+        function saveDraftPlan() { if(draftPlanKey) localStorage.setItem(draftPlanKey, JSON.stringify(planTrabajo)); }
+
+        function restoreDrafts() {
+            let restoredItems = [];
+            
+            const draftCero = localStorage.getItem(draftCeroKey);
+            if (draftCero) {
+                try {
+                    const data = JSON.parse(draftCero);
+                    if(data.fechaSesionCero) document.getElementById('fechaSesionCero').value = data.fechaSesionCero;
+                    if(data.valorSesionCero) document.getElementById('valorSesionCero').value = data.valorSesionCero;
+                    if(data.pagadoSesionCero !== undefined) document.getElementById('pagadoSesionCero').checked = data.pagadoSesionCero;
+                    document.getElementById('ocupacion').value = data.ocupacion || '';
+                    document.getElementById('convivencia').value = data.convivencia || '';
+                    document.getElementById('hobbies').value = data.hobbies || '';
+                    document.getElementById('noHobbies').value = data.noHobbies || '';
+                    document.getElementById('antecedentesMedicos').value = data.antecedentesMedicos || '';
+                    document.getElementById('motivoConsulta').value = data.motivoConsulta || '';
+                    document.getElementById('habilidades').value = data.habilidades || '';
+                    document.getElementById('aspiracion').value = data.aspiracion || '';
+                    document.getElementById('creencias').value = data.creencias || '';
+                    document.getElementById('construccion').value = data.construccion || '';
+                    document.getElementById('orientacion').value = data.orientacion || '';
+                    document.getElementById('nutricion').value = data.nutricion || '';
+                    document.getElementById('cierreSesionCero').value = data.cierreSesionCero || '';
+                    document.getElementById('compromisoStrikes').checked = data.compromisoStrikes || false;
+                    restoredItems.push('Sesión Cero');
+                } catch(e) {}
+            }
+
+            const draftPlan = localStorage.getItem(draftPlanKey);
+            if (draftPlan) {
+                try { planTrabajo = JSON.parse(draftPlan); renderPlan(); restoredItems.push('Plan de Trabajo'); } catch(e) {}
+            }
+
+            const draftEvo = localStorage.getItem(draftEvoKey);
+            if (draftEvo) {
+                try {
+                    const data = JSON.parse(draftEvo);
+                    if(data.fecha) document.getElementById('evoFecha').value = data.fecha;
+                    if(data.valor) document.getElementById('evoValor').value = data.valor;
+                    if(data.pagado !== undefined) document.getElementById('evoPagado').checked = data.pagado;
+                    if(data.tarea) document.getElementById('evoTarea').value = data.tarea;
+                    if(data.nota) document.getElementById('evoNota').value = data.nota;
+                    if(data.hasPrueba !== undefined) { document.getElementById('hasPrueba').checked = data.hasPrueba; togglePruebaBox(); }
+                    if(data.pruebaResultados) document.getElementById('pruebaResultados').value = data.pruebaResultados;
+                    if(data.cierre) document.getElementById('evoCierre').value = data.cierre;
+                    if(data.strikeAction) { const r = document.querySelector(`input[name="strikeAction"][value="${data.strikeAction}"]`); if(r) r.checked = true; }
+                    restoredItems.push('Bitácora/Evolución');
+                } catch(e) {}
+            }
+            
+            const draftPerfil = localStorage.getItem(draftPerfilKey);
+            if (draftPerfil) {
+                try {
+                    const data = JSON.parse(draftPerfil);
+                    if(data.perfil) document.getElementById('perfilEjecutivo').value = data.perfil;
+                    if(data.proposito) document.getElementById('propositoVida').value = data.proposito;
+                } catch(e) { document.getElementById('perfilEjecutivo').value = draftPerfil; }
+                restoredItems.push('Perfil y Propósito');
+            }
+
+            if(restoredItems.length > 0) {
+                resizeAllTextareas();
+                const descEl = document.getElementById('toastBorradorDesc');
+                if (descEl) descEl.textContent = 'Recuperado en: ' + restoredItems.join(', ') + '.';
+                const toast = document.getElementById('toastBorrador');
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                setTimeout(() => { toast.classList.add('translate-y-20', 'opacity-0'); }, 6000);
+            }
+        }
+
+        function togglePruebaBox() {
+            const box = document.getElementById('pruebaBox');
+            if (document.getElementById('hasPrueba').checked) { box.classList.remove('hidden'); document.getElementById('pruebaResultados').required = true; } 
+            else { box.classList.add('hidden'); document.getElementById('pruebaResultados').required = false; document.getElementById('pruebaResultados').value = ''; }
+        }
+
+        function toggleDireccion() {
+            const box = document.getElementById('boxDireccion');
+            if (document.getElementById('citaPresencial').checked) { box.classList.remove('hidden'); } 
+            else { box.classList.add('hidden'); }
+        }
+
+        async function fetchPatientData(id) {
+            try {
+                let data;
+                let isPareja = false;
+                let resDemo = await fetch(`/api/consentimientos?action=getIndividual&id=${id}`);
+                
+                if (resDemo.ok) {
+                    data = await resDemo.json();
+                    data = deepDecodeEntities(data); // Decodifica símbolos de seguridad
+                    globalPatientDataForEdit = data; 
+                    if (data.tipo === 'pareja' || data.paciente1 || (data.demograficos && (data.demograficos.nombreCompleto1 || data.demograficos.nombre1))) {
+                        isPareja = true;
+                    }
+                } else {
+                    resDemo = await fetch(`/api/consentimientos?action=getPareja&id=${id}`);
+                    if (!resDemo.ok) throw new Error('No se encontró el paciente.');
+                    data = await resDemo.json();
+                    data = deepDecodeEntities(data); // Decodifica símbolos de seguridad
+                    globalPatientDataForEdit = data; 
+                    isPareja = true;
+                }
+                
+                globalIsParejaForEdit = isPareja;
+                globalFechaConsentimiento = (data.consentimiento && data.consentimiento.fechaAceptacion) || data.fechaDiligenciamiento || (data.demograficos ? data.demograficos.fechaDiligenciamiento : null);
+
+                let nombre, documento, edad, telefono;
+                
+                if (isPareja) {
+                    let p1 = {}; let p2 = {};
+                    if (data.paciente1) { p1 = data.paciente1; p2 = data.paciente2 || {}; } 
+                    else if (data.demograficos) {
+                        const d = data.demograficos;
+                        p1 = { nombre: d.nombreCompleto1 || d.nombre1 || d.nombreCompleto || "Paciente 1", tipoDocumento: d.tipoDocumento1 || d.tipoDocumento || "", documentoIdentidad: d.documentoIdentidad1 || d.documentoIdentidad || "N/A", edad: calcularEdadActual(d.fechaNacimiento1 || d.fechaNacimiento, d.edad1 || d.edad || "N/A"), telefonoContacto: d.telefonoContacto1 || d.telefonoContacto || "N/A", email: d.email1 || d.email || "N/A", eps: d.eps1 || d.eps || "N/A", contactoEmergenciaNombre: d.contactoEmergenciaNombre1 || d.contactoEmergenciaNombre, contactoEmergenciaTelefono: d.contactoEmergenciaTelefono1 || d.contactoEmergenciaTelefono };
+                        p2 = { nombre: d.nombreCompleto2 || d.nombre2 || "Paciente 2", tipoDocumento: d.tipoDocumento2 || "", documentoIdentidad: d.documentoIdentidad2 || "N/A", edad: calcularEdadActual(d.fechaNacimiento2, d.edad2 || "N/A"), telefonoContacto: d.telefonoContacto2 || "N/A", email: d.email2 || "N/A", eps: d.eps2 || "N/A", contactoEmergenciaNombre: d.contactoEmergenciaNombre2, contactoEmergenciaTelefono: d.contactoEmergenciaTelefono2 };
+                    }
+                    let n1 = p1.nombre || "Paciente 1"; let n2 = p2.nombre || "Paciente 2";
+                    nombre = "Pareja: " + n1.split(' ')[0] + " y " + n2.split(' ')[0];
+                    documento = "Múltiple"; edad = "N/A"; telefono = p1.telefonoContacto || "N/A";
+                    globalEmailPaciente = p1.email; 
+                    
+                    document.getElementById('fichaData').innerHTML = `
+                        <div class="col-span-1 md:col-span-2 lg:col-span-2 bg-gray-50 p-3 rounded-lg border border-gray-100 print:bg-white print:border-none print:p-0">
+                            <span class="font-bold text-[#3B4D4D] block mb-1 text-xs uppercase print:text-black">Paciente 1</span>
+                            <div><span class="font-semibold text-gray-500">Nombre:</span> <span class="text-gray-800">${n1}</span></div>
+                            <div><span class="font-semibold text-gray-500">Doc:</span> <span class="text-gray-800">${p1.tipoDocumento} ${p1.documentoIdentidad}</span></div>
+                            <div><span class="font-semibold text-gray-500">Edad Actual:</span> <span class="text-gray-800">${p1.edad}</span> | <span class="font-semibold text-gray-500">Tel:</span> <span class="text-gray-800">${p1.telefonoContacto}</span></div>
+                            ${p1.contactoEmergenciaNombre ? `<div><span class="font-semibold text-gray-500">Emergencia:</span> <span class="text-gray-800">${p1.contactoEmergenciaNombre} (${p1.contactoEmergenciaTelefono})</span></div>` : ''}
+                        </div>
+                        <div class="col-span-1 md:col-span-2 lg:col-span-2 bg-gray-50 p-3 rounded-lg border border-gray-100 print:bg-white print:border-none print:p-0">
+                            <span class="font-bold text-[#3B4D4D] block mb-1 text-xs uppercase print:text-black">Paciente 2</span>
+                            <div><span class="font-semibold text-gray-500">Nombre:</span> <span class="text-gray-800">${n2}</span></div>
+                            <div><span class="font-semibold text-gray-500">Doc:</span> <span class="text-gray-800">${p2.tipoDocumento} ${p2.documentoIdentidad}</span></div>
+                            <div><span class="font-semibold text-gray-500">Edad Actual:</span> <span class="text-gray-800">${p2.edad}</span> | <span class="font-semibold text-gray-500">Tel:</span> <span class="text-gray-800">${p2.telefonoContacto}</span></div>
+                            ${p2.contactoEmergenciaNombre ? `<div><span class="font-semibold text-gray-500">Emergencia:</span> <span class="text-gray-800">${p2.contactoEmergenciaNombre} (${p2.contactoEmergenciaTelefono})</span></div>` : ''}
+                        </div>
+                    `;
+                } else {
+                    const demo = data.demograficos || {};
+                    nombre = demo.nombre || demo.nombreCompleto || "Paciente Sin Nombre"; 
+                    documento = demo.documentoIdentidad || "N/A"; 
+                    edad = calcularEdadActual(demo.fechaNacimiento, demo.edad || "N/A"); 
+                    telefono = demo.telefonoContacto || "N/A";
+                    globalEmailPaciente = demo.email; 
+                    let ubicacion = `${demo.ciudad || demo.municipio || ''}, ${demo.departamento || ''}, ${demo.pais || ''}`.replace(/^[,\s]+|[,\s]+$/g, '').replace(/,\s*,/g, ', ');
+                    
+                    let fichaHTML = `
+                        <div><span class="font-semibold text-gray-500 block text-xs">Nombre Completo</span> <span class="text-gray-800 font-medium">${nombre}</span></div>
+                        <div><span class="font-semibold text-gray-500 block text-xs">Documento</span> <span class="text-gray-800">${demo.tipoDocumento || ''} ${documento}</span></div>
+                        <div><span class="font-semibold text-gray-500 block text-xs">Edad Actual / Nac.</span> <span class="text-gray-800" id="edadText">${edad} años (${demo.fechaNacimiento || ''})</span></div>
+                        <div><span class="font-semibold text-gray-500 block text-xs">EPS / Servicio Salud</span> <span class="text-gray-800 font-medium">${demo.eps || 'N/A'}</span></div>
+                        <div><span class="font-semibold text-gray-500 block text-xs">Teléfono</span> <span class="text-gray-800">${telefono}</span></div>
+                        <div><span class="font-semibold text-gray-500 block text-xs">Email</span> <span class="text-gray-800">${demo.email || 'N/A'}</span></div>
+                        <div class="md:col-span-2 lg:col-span-2"><span class="font-semibold text-gray-500 block text-xs">Ubicación y Dirección</span> <span class="text-gray-800">${ubicacion} - ${demo.direccion || ''}</span></div>
+                    `;
+                    if (demo.contactoEmergenciaNombre) { fichaHTML += `<div class="md:col-span-2 lg:col-span-2"><span class="font-semibold text-gray-500 block text-xs">Contacto de Emergencia</span> <span class="text-gray-800">${demo.contactoEmergenciaNombre} (Tel: ${demo.contactoEmergenciaTelefono})</span></div>`; }
+                    document.getElementById('fichaData').innerHTML = fichaHTML;
+                }
+
+                document.getElementById('pacienteNombre').textContent = nombre;
+                document.getElementById('pacienteDoc').textContent = `Doc: ${documento}`;
+                document.getElementById('pacienteEdad').textContent = `Edad: ${edad}`;
+                document.getElementById('pacienteContacto').textContent = `Tel: ${telefono}`;
+                document.getElementById('pacienteId').textContent = id;
+                document.title = `HC_${(nombre || "Paciente").replace(/\s+/g, '_')}_Vincula`;
+
+                const timestampFirm = new Date().toLocaleString('es-CO');
+                const rawString = id + "Vincula" + timestampFirm;
+                const hash = btoa(rawString).substring(0, 24).toUpperCase();
+                document.getElementById('firmaMetadato').innerHTML = `ID_EXP: ${id}<br>SELLO: ${timestampFirm}<br>HASH_VALIDACION: ${hash}`;
+
+                try {
+                    let resHist = await fetch(`/api/historia?action=get&id=${id}`);
+                    if (resHist.ok) {
+                        let histData = await resHist.json();
+                        histData = deepDecodeEntities(histData); // Decodifica comillas y símbolos de todo el historial
+                        if (!histData.isNew) {
+                            if (histData.fechaSesionCero) document.getElementById('fechaSesionCero').value = histData.fechaSesionCero;
+                            if (histData.valorSesionCero) document.getElementById('valorSesionCero').value = histData.valorSesionCero;
+                            if (histData.pagadoSesionCero !== undefined) document.getElementById('pagadoSesionCero').checked = histData.pagadoSesionCero;
+                            
+                            document.getElementById('ocupacion').value = histData.contextoVital?.ocupacion || '';
+                            document.getElementById('convivencia').value = histData.contextoVital?.convivencia || '';
+                            document.getElementById('hobbies').value = histData.contextoVital?.hobbies || '';
+                            document.getElementById('noHobbies').value = histData.contextoVital?.noHobbies || '';
+                            document.getElementById('antecedentesMedicos').value = histData.contextoVital?.antecedentesMedicos || '';
+                            
+                            document.getElementById('motivoConsulta').value = histData.halcon?.motivoConsulta || '';
+                            document.getElementById('habilidades').value = histData.halcon?.habilidades || '';
+                            document.getElementById('aspiracion').value = histData.halcon?.aspiracion || '';
+                            document.getElementById('creencias').value = histData.halcon?.creencias || '';
+                            document.getElementById('construccion').value = histData.halcon?.construccion || '';
+                            document.getElementById('orientacion').value = histData.halcon?.orientacion || '';
+                            document.getElementById('nutricion').value = histData.halcon?.nutricion || '';
+                            
+                            document.getElementById('cierreSesionCero').value = histData.cierreSesionCero || '';
+                            document.getElementById('perfilEjecutivo').value = histData.perfilEjecutivo || '';
+                            document.getElementById('propositoVida').value = histData.propositoVida || '';
+                            
+                            document.getElementById('compromisoStrikes').checked = histData.acuerdoStrikes || false;
+                            document.getElementById('btnSave').textContent = 'Actualizar Sesión Cero';
+
+                            if (histData.enlaceMeet) document.getElementById('citaMeet').value = histData.enlaceMeet;
+                            if (histData.direccionConsultorio) { document.getElementById('citaDireccion').value = histData.direccionConsultorio; } 
+                            else { document.getElementById('citaDireccion').value = 'Consultorio Psic. Laura Jiménez Rivero'; }
+                            if (histData.proximaCita && histData.proximaCita.fecha) { document.getElementById('bannerProximaCita').textContent = `${formatearFechaAmigable(histData.proximaCita.fecha)} a las ${histData.proximaCita.hora}`; }
+
+                            if (histData.planTrabajo && histData.planTrabajo.length > 0) planTrabajo = histData.planTrabajo;
+                            if (histData.evoluciones && histData.evoluciones.length > 0) evoluciones = histData.evoluciones;
+                            if (histData.strikes !== undefined) { currentStrikes = histData.strikes; updateStrikeUI(); }
+                            firmaSesionCeroGlobal = histData.firmaSesionCero || null;
+                            fechaFirmaSesionCeroGlobal = histData.fechaFirmaSesionCero || null;
+                            setTimeout(resizeAllTextareas, 100);
+                        }
+                    }
+                } catch(e) {}
+
+                renderPlan();
+                setupAutoSave();
+                restoreDrafts();
+                renderTimeline(); // Aseguramos que se llame a renderTimeline que ahora enumera las sesiones
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                setTimeout(resizeAllTextareas, 200);
+            } catch (error) { 
+                document.getElementById('loading').innerHTML = `<span class="text-red-600">Error: No se pudo cargar el expediente.</span>`; 
+            }
+        }
+
+        async function agendarCita() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            const fecha = document.getElementById('citaFecha').value;
+            const hora = document.getElementById('citaHora').value;
+            const enlaceMeet = document.getElementById('citaMeet').value;
+            const isPresencial = document.getElementById('citaPresencial').checked;
+            const direccionConsultorio = document.getElementById('citaDireccion').value;
+            const nombrePaciente = document.getElementById('pacienteNombre').textContent;
+
+            if (!fecha || !hora) { alert("Por favor, selecciona una fecha y hora."); return; }
+
+            const btn = document.getElementById('btnAgendar');
+            const originalText = btn.innerHTML; btn.disabled = true; btn.textContent = 'Procesando...';
+
+            try {
+                const response = await fetch('/api/citas', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ pacienteId: id, emailPaciente: globalEmailPaciente, nombrePaciente: nombrePaciente, fecha: fecha, hora: hora, enlaceMeet: enlaceMeet, isPresencial: isPresencial, direccionConsultorio: direccionConsultorio }) 
+                });
+                if (response.ok) { 
+                    document.getElementById('bannerProximaCita').textContent = `${formatearFechaAmigable(fecha)} a las ${hora}`;
+                    const sDiv = document.getElementById('agendarSuccess'); sDiv.classList.remove('hidden'); setTimeout(() => sDiv.classList.add('hidden'), 4000);
+                }
+            } catch (error) { alert("Error de conexión."); } 
+            finally { btn.innerHTML = originalText; btn.disabled = false; }
+        }
+
+        function generarPerfilAuto() {
+            let edadValue = "N/A";
+            const edadTextEl = document.getElementById('edadText');
+            if(edadTextEl) { edadValue = edadTextEl.textContent.split(' ')[0]; } 
+            else { let ageStr = document.getElementById('pacienteEdad').textContent.replace('Edad: ', '').trim(); if(ageStr && ageStr !== 'N/A') edadValue = ageStr; }
+
+            let numSesiones = evoluciones.length;
+            let motivoFull = document.getElementById('motivoConsulta').value.trim();
+            let motivoCorto = "Por definir";
+            if(motivoFull) { let words = motivoFull.split(/\s+/); motivoCorto = words.slice(0, 20).join(" ") + (words.length > 20 ? "..." : ""); }
+            
+            let proxTema = "Continuar evolución y seguimiento";
+            if (planTrabajo && planTrabajo.length > numSesiones) { proxTema = planTrabajo[numSesiones].tema || planTrabajo[numSesiones].objetivo || "Tema por definir en el plan"; } 
+            else if (planTrabajo && planTrabajo.length > 0) { proxTema = planTrabajo[planTrabajo.length-1].tema || "Cierre de proceso"; }
+
+            let pruebasAplicadas = [];
+            evoluciones.forEach(evo => {
+                if (evo.hasPrueba && evo.pruebaResultados) {
+                    let nombrePrueba = evo.pruebaResultados.split('\n')[0].trim();
+                    if (nombrePrueba.length > 60) nombrePrueba = nombrePrueba.substring(0, 57) + '...';
+                    pruebasAplicadas.push(nombrePrueba);
+                }
+            });
+
+            let texto = `Paciente de ${edadValue === 'N/A' ? 'edad múltiple/no especificada' : edadValue + ' años'}. Motivo de consulta principal: "${motivoCorto}".\n\n`;
+
+            const hab = document.getElementById('habilidades').value.trim(); const asp = document.getElementById('aspiracion').value.trim(); const cre = document.getElementById('creencias').value.trim(); const con = document.getElementById('construccion').value.trim(); const ori = document.getElementById('orientacion').value.trim(); const nut = document.getElementById('nutricion').value.trim();
+            if (hab || asp || cre || con || ori || nut) {
+                texto += `--- DIAGNÓSTICO HALCÓN ---\n`;
+                if (hab) texto += `• Sus habilidades y esencia: ${hab}\n`; if (asp) texto += `• Sus aspiraciones/metas: ${asp}\n`; if (cre) texto += `• Su lógica y creencias: ${cre}\n`; if (con) texto += `• Construcción/Concreción: ${con}\n`; if (ori) texto += `• Orientación/Adaptación: ${ori}\n`; if (nut) texto += `• Nutrición y trascendencia: ${nut}\n`;
+                texto += `\n`;
+            }
+
+            if (pruebasAplicadas.length > 0) {
+                texto += `--- EVALUACIÓN PSICOMÉTRICA ---\n`; texto += `A la fecha se han aplicado ${pruebasAplicadas.length} prueba(s) psicométrica(s):\n`; pruebasAplicadas.forEach(p => texto += `• ${p}\n`); texto += `\n`;
+            }
+
+            texto += `A la fecha ha completado ${numSesiones} sesión(es) de acompañamiento. Actualmente evolucionando hacia su próximo objetivo: ${proxTema}.`;
+            document.getElementById('perfilEjecutivo').value = texto;
+            resizeAllTextareas();
+            const propositotxt = document.getElementById('propositoVida').value;
+            localStorage.setItem(draftPerfilKey, JSON.stringify({ perfil: texto, proposito: propositotxt }));
+        }
+
+        async function savePerfil() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            const txt = document.getElementById('perfilEjecutivo').value.trim();
+            const prop = document.getElementById('propositoVida').value.trim();
+            const btn = document.getElementById('btnSavePerfil');
+            
+            const originalText = btn.textContent; btn.disabled = true; btn.textContent = 'Guardando...';
+            try {
+                const response = await fetch(`/api/historia?action=savePerfil&id=${id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pacienteId: id, perfilEjecutivo: txt, propositoVida: prop }) });
+                if (response.ok) { localStorage.removeItem(draftPerfilKey); document.getElementById('perfil-success').classList.remove('hidden'); setTimeout(() => document.getElementById('perfil-success').classList.add('hidden'), 3000); }
+            } catch(e) { alert("Error al conectar con la base de datos."); }
+            finally { btn.textContent = originalText; btn.disabled = false; }
+        }
+
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = 'tab-btn text-gray-600 hover:bg-white hover:text-[#3B4D4D] rounded-lg px-6 py-3 font-bold flex items-center whitespace-nowrap transition-all';
+            });
+            const activeBtn = element || event.currentTarget;
+            activeBtn.className = 'tab-btn bg-[#3B4D4D] text-white shadow-md rounded-lg px-6 py-3 font-bold flex items-center whitespace-nowrap transition-all';
+            
+            document.getElementById('tab-sesion-cero').classList.add('hidden');
+            document.getElementById('tab-plan-trabajo').classList.add('hidden');
+            document.getElementById('tab-evolucion').classList.add('hidden');
+            document.getElementById(tabId).classList.remove('hidden');
+            setTimeout(resizeAllTextareas, 50);
+        }
+
+        function renderPlan() {
+            const container = document.getElementById('planContainer'); container.innerHTML = '';
+            if (planTrabajo.length === 0) planTrabajo.push({ sesion: 'Sesión 1', tema: '', objetivo: '', completado: false });
+            
+            planTrabajo.forEach((item, index) => {
+                const isChecked = item.completado ? true : false;
+                const bgClass = isChecked ? 'bg-green-50 border-green-300 shadow-sm' : 'bg-gray-50 border-gray-200';
+                container.innerHTML += `
+                    <div class="flex flex-col md:flex-row gap-4 items-start ${bgClass} p-4 rounded-xl border print:bg-white print:p-2 print:border-b print:border-t-0 print:border-x-0 print:rounded-none transition-colors duration-300">
+                        <div class="flex items-center space-x-2 pt-1 md:pt-8 print:hidden">
+                            <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="togglePlanStatus(${index}, this.checked)" class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer" title="Marcar como completada">
+                            <span class="text-xs font-bold md:hidden ${isChecked ? 'text-green-700' : 'text-gray-500'}">${isChecked ? '¡Completado!' : 'Pendiente'}</span>
+                        </div>
+                        <div class="w-full md:w-1/4"><label class="block text-xs font-semibold text-gray-500 mb-1">Nombre / # Sesión</label><textarea rows="1" class="textarea-styled min-h-input text-sm bg-white" oninput="updatePlan(${index}, 'sesion', this.value)">${item.sesion}</textarea></div>
+                        <div class="w-full md:w-1/3"><label class="block text-xs font-semibold text-gray-500 mb-1">Tema Principal</label><textarea rows="1" class="textarea-styled min-h-input text-sm bg-white" oninput="updatePlan(${index}, 'tema', this.value)" placeholder="Ej. Creencias Limitantes">${item.tema}</textarea></div>
+                        <div class="w-full md:w-5/12 relative"><label class="block text-xs font-semibold text-gray-500 mb-1">Objetivo de la Sesión</label><textarea class="textarea-styled text-sm bg-white h-10 min-h-[48px]" oninput="updatePlan(${index}, 'objetivo', this.value)" placeholder="Meta a lograr...">${item.objetivo}</textarea><button onclick="removePlanRow(${index})" class="no-print absolute -right-2 top-0 mt-8 mr-2 text-red-400 hover:text-red-600 bg-white rounded-full p-1 shadow-sm border border-gray-100" title="Eliminar sesión"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div>
+                    </div>`;
+            });
+            setTimeout(resizeAllTextareas, 50);
+        }
+
+        function togglePlanStatus(index, isChecked) { planTrabajo[index].completado = isChecked; renderPlan(); saveDraftPlan(); }
+        function updatePlan(index, field, value) { planTrabajo[index][field] = value; saveDraftPlan(); }
+        function addPlanRow() { planTrabajo.push({ sesion: `Sesión ${planTrabajo.length + 1}`, tema: '', objetivo: '', completado: false }); renderPlan(); saveDraftPlan(); }
+        function removePlanRow(index) { planTrabajo.splice(index, 1); if (planTrabajo.length === 0) planTrabajo.push({ sesion: 'Sesión 1', tema: '', objetivo: '', completado: false }); renderPlan(); saveDraftPlan(); }
+
+        function printPlanOnly() {
+            const nombrePaciente = document.getElementById('pacienteNombre').textContent;
+            document.getElementById('printPlanPacienteName').textContent = 'PACIENTE: ' + nombrePaciente;
+            
+            const tbody = document.getElementById('printPlanTableBody');
+            tbody.innerHTML = '';
+            
+            planTrabajo.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="border border-gray-300 p-3 text-center font-bold text-gray-700">${index + 1}</td>
+                    <td class="border border-gray-300 p-3 whitespace-pre-wrap text-gray-800">${item.tema || ''}</td>
+                    <td class="border border-gray-300 p-3 whitespace-pre-wrap text-gray-800">${item.objetivo || ''}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.body.classList.add('print-mode-plan');
+            setTimeout(() => { window.print(); setTimeout(() => { document.body.classList.remove('print-mode-plan'); }, 500); }, 100);
+        }
+
+        async function savePlan() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            const btn = document.getElementById('btnSavePlan');
+            const originalText = btn.textContent; btn.disabled = true; btn.textContent = 'Guardando...';
+            try {
+                const response = await fetch(`/api/historia?action=savePlan&id=${id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pacienteId: id, planTrabajo: planTrabajo }) });
+                if(response.ok) { localStorage.removeItem(draftPlanKey); document.getElementById('plan-success').classList.remove('hidden'); setTimeout(() => document.getElementById('plan-success').classList.add('hidden'), 3000); }
+            } catch(e) { alert("Error al conectar con la base de datos."); }
+            finally { btn.textContent = originalText; btn.disabled = false; }
+        }
+
+        async function saveSesionCero(id) {
+            const motivo = document.getElementById('motivoConsulta').value.trim();
+            const fechaSC = document.getElementById('fechaSesionCero').value;
+            const btn = document.getElementById('btnSave');
+            if (!motivo || !fechaSC) { document.getElementById('form-error').classList.remove('hidden'); return; }
+            document.getElementById('form-error').classList.add('hidden'); btn.disabled = true; btn.textContent = 'Guardando...';
+
+            const historiaData = {
+                pacienteId: id,
+                fechaSesionCero: fechaSC,
+                valorSesionCero: document.getElementById('valorSesionCero').value || 0,
+                pagadoSesionCero: document.getElementById('pagadoSesionCero').checked,
+                ocupacion: document.getElementById('ocupacion').value, convivencia: document.getElementById('convivencia').value, hobbies: document.getElementById('hobbies').value, noHobbies: document.getElementById('noHobbies').value, antecedentesMedicos: document.getElementById('antecedentesMedicos').value, motivoConsulta: motivo, habilidades: document.getElementById('habilidades').value, aspiracion: document.getElementById('aspiracion').value, creencias: document.getElementById('creencias').value, construccion: document.getElementById('construccion').value, orientacion: document.getElementById('orientacion').value, nutricion: document.getElementById('nutricion').value, 
+                cierreSesionCero: document.getElementById('cierreSesionCero').value,
+                acuerdoStrikes: document.getElementById('compromisoStrikes').checked
+            };
+            try {
+                const response = await fetch(`/api/historia?action=saveHistoria&id=${id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(historiaData) });
+                if(response.ok) { localStorage.removeItem(draftCeroKey); if (historiaData.pagadoSesionCero && Number(historiaData.valorSesionCero) > 0) { enviarReciboPago(id, 'sesionCero'); } document.getElementById('form-success').classList.remove('hidden'); btn.textContent = 'Actualizar Sesión Cero'; btn.disabled = false; setTimeout(() => document.getElementById('form-success').classList.add('hidden'), 3000); }
+            } catch(e) { alert("Hubo un error al conectar."); btn.disabled = false; btn.textContent = 'Intentar de nuevo'; }
+        }
+
+        function updateStrikeUI() {
+            for(let i=1; i<=3; i++) { let el = document.getElementById(`strike${i}`); el.classList.remove('strike-active', 'text-white'); el.classList.add('bg-white', 'text-red-300'); }
+            for(let i=1; i<=currentStrikes; i++) { if(i > 3) break; let el = document.getElementById(`strike${i}`); el.classList.remove('bg-white', 'text-red-300'); el.classList.add('strike-active', 'text-white'); }
+            const msgLabel = document.getElementById('strikeMessage');
+            if (currentStrikes === 0) msgLabel.textContent = "Compromiso estable.";
+            else if (currentStrikes === 1) msgLabel.textContent = "Atención: 1 falta registrada.";
+            else if (currentStrikes === 2) msgLabel.textContent = "Alerta: 2 faltas. En riesgo.";
+            else if (currentStrikes >= 3) msgLabel.textContent = "LÍMITE ALCANZADO. Evaluar cierre ético.";
+        }
+
+        function renderTimeline() {
+            const container = document.getElementById('timelineContainer');
+            const titleEl = document.getElementById('historialTitle');
+            let totalSesiones = evoluciones.length + (globalFechaConsentimiento ? 1 : 0);
+
+            if (evoluciones.length === 0 && !globalFechaConsentimiento) { 
+                document.getElementById('emptyTimeline').classList.remove('hidden'); 
+                if (titleEl) titleEl.textContent = "Historial de Sesiones";
+                return; 
+            }
+            document.getElementById('emptyTimeline').classList.add('hidden');
+            Array.from(container.children).forEach(child => { if(child.id !== 'emptyTimeline') container.removeChild(child); });
+
+            if (titleEl) {
+                titleEl.textContent = `Historial de Sesiones (${totalSesiones} ${totalSesiones === 1 ? 'sesión' : 'sesiones'})`;
+            }
+
+            const evosWithIndex = evoluciones.map((evo, index) => ({ ...evo, sessionNumber: index + 1 }));
+
+            [...evosWithIndex].reverse().forEach((evo) => {
+                const card = document.createElement('div');
+                card.className = `timeline-card relative z-10 flex items-start group mb-4 print:mb-4 print:border-b print:border-gray-200 print:pb-4 cursor-default`;
+                
+                const fechaAmigable = formatearFechaAmigable(evo.fecha);
+                const sessionNumStr = evo.sessionNumber.toString().padStart(2, '0');
+                
+                let iconBgClass = 'bg-[#3B4D4D]'; let iconPath = 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'; let badgeHTML = '';
+                if (evo.strikeAnadido) { iconBgClass = 'bg-red-500'; iconPath = 'M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'; badgeHTML += '<span class="text-xs font-bold bg-red-100 text-red-700 px-2 py-0.5 rounded ml-2">Strike Aplicado</span>'; } 
+                else if (evo.strikeRemovido) { iconBgClass = 'bg-green-500'; iconPath = 'M5 13l4 4L19 7'; badgeHTML += '<span class="text-xs font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded ml-2">Strike Removido</span>'; }
+                
+                if (evo.valor && Number(evo.valor) > 0) {
+                    const pagoColor = evo.pagado ? 'bg-green-100 text-green-800 border-green-200' : 'bg-orange-100 text-orange-800 border-orange-200';
+                    const pagoIcon = evo.pagado ? '✓ Pagado' : '⏳ Pendiente';
+                    badgeHTML += `<span class="print:hidden text-xs font-bold ${pagoColor} px-2 py-0.5 rounded ml-2 border shadow-sm">${formatCurrency(evo.valor)} - ${pagoIcon}</span>`;
+                }
+
+                const yaFirmado = !!evo.firmaPaciente;
+                const firmaBtnHtml = yaFirmado 
+                    ? `<span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2 py-1 rounded shadow-sm border border-emerald-200">✅ Sesión Validada</span>`
+                    : `<button onclick="openQRModal('${evo.id}', event)" class="text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 px-3 py-1 rounded shadow-sm transition-colors flex items-center">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg> Solicitar Validación
+                       </button>`;
+
+                let anexosPrintHTML = '';
+                if(evo.anexos && evo.anexos.length > 0) {
+                    anexosPrintHTML = evo.anexos.map(anx => `<div class="mt-2 pt-2 border-t border-yellow-100 bg-yellow-50 p-2 rounded print-only hidden"><p class="text-[10px] font-bold text-yellow-800">Actualización (${formatearFechaAmigable(anx.fecha)}):</p><p class="text-xs text-yellow-900 whitespace-pre-wrap">${anx.texto}</p></div>`).join('');
+                }
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white ${iconBgClass} shadow shrink-0 print:hidden mt-2">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${iconPath}"></path></svg>
+                    </div>
+                    <div class="ml-4 w-full bg-white p-4 rounded-xl border border-gray-200 print:shadow-none print:border-none print:p-0 print:ml-0 transition-all hover:bg-gray-50">
+                        <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-[#3B4D4D] text-sm">Sesión ${sessionNumStr} <span class="text-gray-500 font-medium ml-1">| ${fechaAmigable}</span></span>
+                                ${badgeHTML}
+                            </div>
+                            <div class="flex items-center gap-2 print:hidden">
+                                ${firmaBtnHtml}
+                                <button onclick="openModal('${evo.id}')" class="text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-1 rounded transition-colors shadow-sm">Abrir Detalle</button>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-700 line-clamp-3 print:hidden">${evo.nota}</p>
+                        <p class="text-sm text-gray-700 hidden print-full-text">${evo.nota}</p>
+                        ${evo.cierre ? `<div class="mt-3 pt-2 border-t border-gray-100"><p class="text-xs font-bold text-[#3B4D4D]">Cierre (¿Qué se lleva?):</p><p class="text-sm text-gray-700 italic">"${evo.cierre}"</p></div>` : ''}
+                        ${anexosPrintHTML}
+                    </div>`;
+                container.appendChild(card);
+            });
+            
+            if (globalFechaConsentimiento) {
+                const cardCero = document.createElement('div');
+                cardCero.className = `timeline-card relative z-10 flex items-start group mb-4 print:mb-4 print:border-b print:border-gray-200 print:pb-4 cursor-default`; 
+                const fechaAmigableCero = formatearFechaAmigable(globalFechaConsentimiento);
+                
+                const motivoCero = document.getElementById('motivoConsulta').value.trim();
+                const valorCero = document.getElementById('valorSesionCero').value;
+                const pagadoCero = document.getElementById('pagadoSesionCero').checked;
+                
+                let snippetMotivo = "El paciente firmó el consentimiento para iniciar el proceso psicológico. Falta registrar motivo de consulta.";
+                if (motivoCero) { const words = motivoCero.split(/\s+/); snippetMotivo = words.slice(0, 20).join(" ") + (words.length > 20 ? "..." : ""); }
+
+                let badgePagoCero = '';
+                if (valorCero && Number(valorCero) > 0) {
+                    const pagoColor = pagadoCero ? 'bg-green-100 text-green-800 border-green-200' : 'bg-orange-100 text-orange-800 border-orange-200';
+                    const pagoIcon = pagadoCero ? '✓ Pagado' : '⏳ Pendiente';
+                    badgePagoCero = `<span class="print:hidden text-xs font-bold ${pagoColor} px-2 py-0.5 rounded ml-2 border shadow-sm">${formatCurrency(valorCero)} - ${pagoIcon}</span>`;
+                }
+
+                const yaFirmadoCero = !!firmaSesionCeroGlobal;
+                const firmaBtnHtmlCero = yaFirmadoCero 
+                    ? `<span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2 py-1 rounded shadow-sm border border-emerald-200">✅ Sesión Validada</span>`
+                    : `<button onclick="openQRModal('sesionCero', event)" class="text-xs font-bold bg-indigo-600 text-white hover:bg-indigo-700 px-3 py-1 rounded shadow-sm transition-colors flex items-center">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg> Solicitar Validación
+                       </button>`;
+
+                cardCero.innerHTML = `
+                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-green-600 shadow shrink-0 print:hidden mt-2">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div class="ml-4 w-full bg-green-50/60 p-4 rounded-xl border border-green-200 print:shadow-none print:border-none print:p-0 print:ml-0">
+                        <div class="flex flex-wrap justify-between items-center mb-2 gap-2">
+                            <div class="flex items-center space-x-2">
+                                <span class="font-bold text-green-800 text-sm">Sesión 00 <span class="text-green-700/70 font-medium ml-1">| ${fechaAmigableCero}</span></span>
+                                ${badgePagoCero}
+                            </div>
+                            <div class="flex items-center gap-2 print:hidden">
+                                ${firmaBtnHtmlCero}
+                                <span class="text-xs font-bold bg-green-200 text-green-800 px-2 py-0.5 rounded shadow-sm border border-green-300">Sesión Diagnóstica</span>
+                                <button onclick="openModal('sesionCero')" class="text-xs font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-1 rounded transition-colors shadow-sm">Abrir Detalle</button>
+                            </div>
+                        </div>
+                        <h4 class="font-bold text-green-900 text-sm mb-1">Motivo de Consulta</h4>
+                        <p class="text-sm text-green-800 font-medium italic">"${snippetMotivo}"</p>
+                    </div>`;
+                container.appendChild(cardCero);
+            }
+        }
+
+        let qrcode = null;
+
+        function openQRModal(evoId, event) {
+            if(event) event.stopPropagation(); 
+            
+            const patientId = new URLSearchParams(window.location.search).get('id');
+            const link = `${window.location.origin}/validar-sesion.html?id=${patientId}&evoId=${evoId}`;
+            
+            document.getElementById('qrLinkHidden').value = link;
+            const container = document.getElementById("qrcodeContainer");
+            container.innerHTML = "";
+            
+            qrcode = new QRCode(container, {
+                text: link,
+                width: 200,
+                height: 200,
+                colorDark : "#3B4D4D",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+            document.getElementById('qrModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeQRModal() {
+            document.getElementById('qrModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            if (qrcode) { qrcode.clear(); }
+        }
+
+        function copiarEnlaceVirtual() {
+            const link = document.getElementById('qrLinkHidden').value;
+            navigator.clipboard.writeText(link).then(() => {
+                const btn = document.getElementById('btnCopyLink');
+                const orig = btn.innerHTML;
+                btn.innerHTML = `✅ ¡Enlace Copiado! pégalo en el chat`;
+                btn.classList.add('bg-green-100', 'text-green-800', 'border-green-300');
+                btn.classList.remove('bg-indigo-50', 'text-indigo-700', 'border-indigo-200');
+                setTimeout(() => {
+                    btn.innerHTML = orig;
+                    btn.classList.remove('bg-green-100', 'text-green-800', 'border-green-300');
+                    btn.classList.add('bg-indigo-50', 'text-indigo-700', 'border-indigo-200');
+                }, 3000);
+            });
+        }
+
+        function openModal(evoId) {
+            let evo;
+            let isSesionCero = false;
+
+            if (evoId === 'sesionCero') {
+                isSesionCero = true;
+                evo = {
+                    id: 'sesionCero',
+                    fecha: document.getElementById('fechaSesionCero').value,
+                    valor: document.getElementById('valorSesionCero').value,
+                    pagado: document.getElementById('pagadoSesionCero').checked,
+                    nota: "MOTIVO DE CONSULTA:\n" + document.getElementById('motivoConsulta').value + "\n\nDIAGNÓSTICO HALCÓN:\n• Habilidades: " + document.getElementById('habilidades').value + "\n• Aspiración: " + document.getElementById('aspiracion').value + "\n• Lógica/Creencias: " + document.getElementById('creencias').value + "\n• Construcción: " + document.getElementById('construccion').value + "\n• Orientación: " + document.getElementById('orientacion').value + "\n• Nutrición: " + document.getElementById('nutricion').value,
+                    cierre: document.getElementById('cierreSesionCero').value,
+                    firmaPaciente: firmaSesionCeroGlobal,
+                    fechaFirmaPaciente: fechaFirmaSesionCeroGlobal,
+                    hasPrueba: false,
+                    anexos: []
+                };
+            } else {
+                evo = evoluciones.find(e => e.id === evoId);
+            }
+
+            if(!evo) return;
+
+            document.getElementById('currentSessionIdModal').value = evoId;
+            let titleText = "Fecha: " + formatearFechaAmigable(evo.fecha);
+            
+            if (evo.valor && Number(evo.valor) > 0) { titleText += ` | Valor: ${formatCurrency(evo.valor)} (${evo.pagado ? 'Pagado' : 'Pendiente'})`; }
+            
+            document.getElementById('modalFecha').textContent = titleText;
+            document.getElementById('modalNota').textContent = evo.nota;
+
+            if(evo.hasPrueba && evo.pruebaResultados) { document.getElementById('modalPruebasContainer').classList.remove('hidden'); document.getElementById('modalPruebas').textContent = evo.pruebaResultados; } 
+            else { document.getElementById('modalPruebasContainer').classList.add('hidden'); }
+
+            // 🛡️ LÓGICA DE TAREA MODIFICADA: Siempre visible para edición, excepto en Sesión Cero
+            if (isSesionCero) {
+                document.getElementById('modalTareaContainerWrapper').classList.add('hidden');
+            } else {
+                document.getElementById('modalTareaContainerWrapper').classList.remove('hidden');
+                document.getElementById('modalTareaEdit').value = evo.tarea || '';
+                document.getElementById('tareaSuccessMsg').classList.add('hidden');
+            }
+
+            if(evo.cierre) { document.getElementById('modalCierreContainer').classList.remove('hidden'); document.getElementById('modalCierre').textContent = `"${evo.cierre}"`; } 
+            else { document.getElementById('modalCierreContainer').classList.add('hidden'); }
+
+            const firmaBox = document.getElementById('modalFirmaPacienteBox');
+            if (evo.firmaPaciente) {
+                document.getElementById('modalFirmaImg').src = evo.firmaPaciente;
+                const fStr = evo.fechaFirmaPaciente ? new Date(evo.fechaFirmaPaciente).toLocaleString('es-CO') : 'Desconocida';
+                document.getElementById('modalFirmaFecha').textContent = fStr;
+                firmaBox.classList.remove('hidden');
+            } else {
+                firmaBox.classList.add('hidden');
+            }
+
+            if (isSesionCero) {
+                document.getElementById('modalEstadoFinancieroBox').classList.add('hidden');
+                document.getElementById('modalAnexosInputBox').classList.add('hidden');
+            } else {
+                document.getElementById('modalEvoValor').value = evo.valor || '';
+                document.getElementById('modalEvoPagado').checked = !!evo.pagado;
+                document.getElementById('pagoSuccessMsg').classList.add('hidden');
+                document.getElementById('modalEstadoFinancieroBox').classList.remove('hidden');
+                document.getElementById('modalAnexosInputBox').classList.remove('hidden');
+            }
+
+            const anexosContainer = document.getElementById('modalAnexosContainer');
+            anexosContainer.innerHTML = '';
+            if(evo.anexos && evo.anexos.length > 0) {
+                evo.anexos.forEach(anx => {
+                    anexosContainer.innerHTML += `
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <p class="text-xs font-bold text-yellow-800 mb-1 flex items-center"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Anexo / Actualización - ${formatearFechaAmigable(anx.fecha)}</p>
+                        <p class="text-sm text-yellow-900 whitespace-pre-wrap">${anx.texto}</p>
+                    </div>`;
+                });
+            }
+
+            document.getElementById('nuevoAnexo').value = localStorage.getItem(`draft_anexo_${evoId}`) || '';
+            document.getElementById('sessionModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            setTimeout(resizeAllTextareas, 50);
+        }
+
+        function closeModal() { document.getElementById('sessionModal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
+
+        function openEditDemoModal() {
+            if (!globalPatientDataForEdit) return;
+            const data = globalPatientDataForEdit;
+            
+            if (globalIsParejaForEdit) {
+                let p1 = data.paciente1 || data.demograficos || {};
+                let p2 = data.paciente2 || data.demograficos || {};
+                
+                document.getElementById('lbl_tit_p1').textContent = "Datos del Paciente 1";
+                document.getElementById('edit_p1_nombre').value = p1.nombreCompleto1 || p1.nombre || '';
+                document.getElementById('edit_p1_tipodoc').value = p1.tipoDocumento1 || p1.tipoDocumento || '';
+                document.getElementById('edit_p1_doc').value = p1.documentoIdentidad1 || p1.documentoIdentidad || '';
+                document.getElementById('edit_p1_fechanac').value = p1.fechaNacimiento1 || p1.fechaNacimiento || '';
+                document.getElementById('edit_p1_tel').value = p1.telefonoContacto1 || p1.telefonoContacto || '';
+                document.getElementById('edit_p1_email').value = p1.email1 || p1.email || '';
+                document.getElementById('edit_p1_eps').value = p1.eps1 || p1.eps || '';
+                document.getElementById('edit_p1_dir').value = p1.direccion1 || p1.direccion || '';
+                document.getElementById('edit_p1_em_nombre').value = p1.contactoEmergenciaNombre || p1.contactoEmergenciaNombre1 || '';
+                document.getElementById('edit_p1_em_tel').value = p1.contactoEmergenciaTelefono || p1.contactoEmergenciaTelefono1 || '';
+                
+                document.getElementById('edit_p2_container').classList.remove('hidden');
+                document.getElementById('edit_emergencia_p1_container').classList.remove('hidden');
+                
+                document.getElementById('edit_p2_nombre').value = p2.nombreCompleto2 || p2.nombre || '';
+                document.getElementById('edit_p2_tipodoc').value = p2.tipoDocumento2 || p2.tipoDocumento || '';
+                document.getElementById('edit_p2_doc').value = p2.documentoIdentidad2 || p2.documentoIdentidad || '';
+                document.getElementById('edit_p2_fechanac').value = p2.fechaNacimiento2 || p2.fechaNacimiento || '';
+                document.getElementById('edit_p2_tel').value = p2.telefonoContacto2 || p2.telefonoContacto || '';
+                document.getElementById('edit_p2_email').value = p2.email2 || p2.email || '';
+                document.getElementById('edit_p2_eps').value = p2.eps2 || p2.eps || '';
+                document.getElementById('edit_p2_dir').value = p2.direccion2 || p2.direccion || '';
+                document.getElementById('edit_p2_em_nombre').value = p2.contactoEmergenciaNombre || p2.contactoEmergenciaNombre2 || '';
+                document.getElementById('edit_p2_em_tel').value = p2.contactoEmergenciaTelefono || p2.contactoEmergenciaTelefono2 || '';
+                
+                document.getElementById('edit_emergencia_container').classList.add('hidden');
+            } else {
+                let d = data.demograficos || {};
+                document.getElementById('lbl_tit_p1').textContent = "Datos del Paciente";
+                document.getElementById('edit_p1_nombre').value = d.nombreCompleto || d.nombre || '';
+                document.getElementById('edit_p1_tipodoc').value = d.tipoDocumento || '';
+                document.getElementById('edit_p1_doc').value = d.documentoIdentidad || '';
+                document.getElementById('edit_p1_fechanac').value = d.fechaNacimiento || '';
+                document.getElementById('edit_p1_tel').value = d.telefonoContacto || '';
+                document.getElementById('edit_p1_email').value = d.email || '';
+                document.getElementById('edit_p1_eps').value = d.eps || '';
+                document.getElementById('edit_p1_dir').value = d.direccion || '';
+                
+                document.getElementById('edit_p2_container').classList.add('hidden');
+                document.getElementById('edit_emergencia_p1_container').classList.add('hidden');
+                document.getElementById('edit_emergencia_container').classList.remove('hidden');
+                
+                document.getElementById('edit_em_nombre').value = d.contactoEmergenciaNombre || '';
+                document.getElementById('edit_em_tel').value = d.contactoEmergenciaTelefono || '';
+            }
+            
+            document.getElementById('editDemoModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeEditDemoModal() { document.getElementById('editDemoModal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
+
+        async function saveDemographics(btn) {
+            const id = new URLSearchParams(window.location.search).get('id');
+            const originalText = btn.textContent; btn.textContent = 'Guardando...'; btn.disabled = true;
+            let payload = { id: id, isPareja: globalIsParejaForEdit, datos: {} };
+            
+            if (globalIsParejaForEdit) {
+                payload.datos = {
+                    paciente1: { nombre: document.getElementById('edit_p1_nombre').value, nombreCompleto1: document.getElementById('edit_p1_nombre').value, tipoDocumento: document.getElementById('edit_p1_tipodoc').value, tipoDocumento1: document.getElementById('edit_p1_tipodoc').value, documentoIdentidad: document.getElementById('edit_p1_doc').value, documentoIdentidad1: document.getElementById('edit_p1_doc').value, fechaNacimiento: document.getElementById('edit_p1_fechanac').value, fechaNacimiento1: document.getElementById('edit_p1_fechanac').value, telefonoContacto: document.getElementById('edit_p1_tel').value, telefonoContacto1: document.getElementById('edit_p1_tel').value, email: document.getElementById('edit_p1_email').value, email1: document.getElementById('edit_p1_email').value, eps: document.getElementById('edit_p1_eps').value, eps1: document.getElementById('edit_p1_eps').value, direccion: document.getElementById('edit_p1_dir').value, direccion1: document.getElementById('edit_p1_dir').value, contactoEmergenciaNombre: document.getElementById('edit_p1_em_nombre').value, contactoEmergenciaNombre1: document.getElementById('edit_p1_em_nombre').value, contactoEmergenciaTelefono: document.getElementById('edit_p1_em_tel').value, contactoEmergenciaTelefono1: document.getElementById('edit_p1_em_tel').value },
+                    paciente2: { nombre: document.getElementById('edit_p2_nombre').value, nombreCompleto2: document.getElementById('edit_p2_nombre').value, tipoDocumento: document.getElementById('edit_p2_tipodoc').value, tipoDocumento2: document.getElementById('edit_p2_tipodoc').value, documentoIdentidad: document.getElementById('edit_p2_doc').value, documentoIdentidad2: document.getElementById('edit_p2_doc').value, fechaNacimiento: document.getElementById('edit_p2_fechanac').value, fechaNacimiento2: document.getElementById('edit_p2_fechanac').value, telefonoContacto: document.getElementById('edit_p2_tel').value, telefonoContacto2: document.getElementById('edit_p2_tel').value, email: document.getElementById('edit_p2_email').value, email2: document.getElementById('edit_p2_email').value, eps: document.getElementById('edit_p2_eps').value, eps2: document.getElementById('edit_p2_eps').value, direccion: document.getElementById('edit_p2_dir').value, direccion2: document.getElementById('edit_p2_dir').value, contactoEmergenciaNombre: document.getElementById('edit_p2_em_nombre').value, contactoEmergenciaNombre2: document.getElementById('edit_p2_em_nombre').value, contactoEmergenciaTelefono: document.getElementById('edit_p2_em_tel').value, contactoEmergenciaTelefono2: document.getElementById('edit_p2_em_tel').value }
+                };
+            } else {
+                payload.datos = { demograficos: { nombre: document.getElementById('edit_p1_nombre').value, nombreCompleto: document.getElementById('edit_p1_nombre').value, tipoDocumento: document.getElementById('edit_p1_tipodoc').value, documentoIdentidad: document.getElementById('edit_p1_doc').value, fechaNacimiento: document.getElementById('edit_p1_fechanac').value, telefonoContacto: document.getElementById('edit_p1_tel').value, email: document.getElementById('edit_p1_email').value, eps: document.getElementById('edit_p1_eps').value, direccion: document.getElementById('edit_p1_dir').value, contactoEmergenciaNombre: document.getElementById('edit_em_nombre').value, contactoEmergenciaTelefono: document.getElementById('edit_em_tel').value } };
+            }
+            
+            try {
+                const res = await fetch('/api/consentimientos?action=updateDemographics', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+                if (res.ok) { closeEditDemoModal(); fetchPatientData(id); } else { alert("Error al actualizar datos."); }
+            } catch (err) { alert("Error de conexión."); } finally { btn.textContent = originalText; btn.disabled = false; }
+        }
+
+        async function guardarAnexo() {
+            const textoAnexo = document.getElementById('nuevoAnexo').value.trim();
+            if(!textoAnexo) { alert("Por favor escribe un texto para el anexo."); return; }
+
+            const evoId = document.getElementById('currentSessionIdModal').value;
+            const evoIndex = evoluciones.findIndex(e => e.id === evoId);
+            if(evoIndex === -1) return;
+
+            const btn = document.getElementById('btnSaveAnexo');
+            const originalText = btn.textContent; btn.disabled = true; btn.textContent = 'Sellando...';
+
+            const fechaHora = new Date().toLocaleString('es-CO');
+            if(!evoluciones[evoIndex].anexos) evoluciones[evoIndex].anexos = [];
+            evoluciones[evoIndex].anexos.push({ fecha: fechaHora, texto: textoAnexo });
+
+            try {
+                const patientId = new URLSearchParams(window.location.search).get('id');
+                const response = await fetch(`/api/historia?action=saveEvolucion&id=${patientId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pacienteId: patientId, evoluciones: evoluciones, strikes: currentStrikes }) });
+                if(response.ok){ localStorage.removeItem(`draft_anexo_${evoId}`); renderTimeline(); openModal(evoId); }
+            } catch(e) { evoluciones[evoIndex].anexos.pop(); alert("Error al guardar el anexo."); }
+            finally { btn.textContent = originalText; btn.disabled = false; }
+        }
+
+        async function actualizarPagoEvolucion() {
+            const evoId = document.getElementById('currentSessionIdModal').value;
+            const evoIndex = evoluciones.findIndex(e => e.id === evoId);
+            if(evoIndex === -1) return;
+
+            const nuevoValor = document.getElementById('modalEvoValor').value || 0;
+            const nuevoPagado = document.getElementById('modalEvoPagado').checked;
+
+            evoluciones[evoIndex].valor = nuevoValor;
+            evoluciones[evoIndex].pagado = nuevoPagado;
+
+            const btn = document.getElementById('btnUpdatePago');
+            const originalText = btn.textContent; btn.disabled = true; btn.textContent = 'Guardando...';
+
+            try {
+                const patientId = new URLSearchParams(window.location.search).get('id');
+                const response = await fetch(`/api/historia?action=saveEvolucion&id=${patientId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pacienteId: patientId, evoluciones: evoluciones, strikes: currentStrikes }) });
+                if(response.ok){
+                    renderTimeline();
+                    document.getElementById('pagoSuccessMsg').classList.remove('hidden');
+                    setTimeout(() => document.getElementById('pagoSuccessMsg').classList.add('hidden'), 3000);
+                    if (nuevoPagado && Number(nuevoValor) > 0) { enviarReciboPago(patientId, evoId); }
+                }
+            } catch(e) { alert("Error al actualizar el pago."); } finally { btn.textContent = originalText; btn.disabled = false; }
+        }
+
+        async function actualizarTareaEvolucion() {
+            const evoId = document.getElementById('currentSessionIdModal').value;
+            const evoIndex = evoluciones.findIndex(e => e.id === evoId);
+            if(evoIndex === -1) return;
+
+            const nuevaTarea = document.getElementById('modalTareaEdit').value.trim();
+
+            evoluciones[evoIndex].tarea = nuevaTarea;
+
+            const btn = document.getElementById('btnUpdateTarea');
+            const originalText = btn.textContent; btn.disabled = true; btn.textContent = 'Guardando...';
+
+            try {
+                const patientId = new URLSearchParams(window.location.search).get('id');
+                const response = await fetch(`/api/historia?action=saveEvolucion&id=${patientId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pacienteId: patientId, evoluciones: evoluciones, strikes: currentStrikes }) });
+                if(response.ok){ 
+                    // No hace falta renderizar toda la timeline porque la tarea no se ve ahí, solo en el modal
+                    document.getElementById('tareaSuccessMsg').classList.remove('hidden'); 
+                    setTimeout(() => document.getElementById('tareaSuccessMsg').classList.add('hidden'), 3000); 
+                }
+            } catch(e) { 
+                alert("Error al actualizar la tarea."); 
+            } finally { 
+                btn.textContent = originalText; 
+                btn.disabled = false; 
+            }
+        }
+
+        async function reenviarReciboManual() {
+            const evoId = document.getElementById('currentSessionIdModal').value;
+            const patientId = new URLSearchParams(window.location.search).get('id');
+            if (!evoId || !patientId) return;
+
+            const valorActual = Number(document.getElementById('modalEvoValor').value || 0);
+            if (!(valorActual > 0)) {
+                mostrarReciboMsg('La sesión no tiene un valor mayor a 0; no se puede generar recibo. Guarda primero un valor.', false);
+                return;
+            }
+            if (!confirm('¿Reenviar el recibo de pago al correo del paciente, con copia a ti?')) return;
+
+            const btn = document.getElementById('btnReenviarRecibo');
+            const originalText = btn.textContent; btn.disabled = true; btn.textContent = 'Enviando...';
+            try {
+                const resp = await fetch(`/api/historia?action=enviarReciboPago&id=${patientId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pacienteId: patientId, evoId, forzar: true })
+                });
+                const r = await resp.json().catch(() => ({}));
+                mostrarReciboMsg(r.message || (resp.ok ? 'Recibo enviado.' : 'No se pudo enviar el recibo.'), resp.ok);
+            } catch (e) {
+                mostrarReciboMsg('Error de red al reenviar el recibo.', false);
+            } finally {
+                btn.textContent = originalText; btn.disabled = false;
+            }
+        }
+
+        function mostrarReciboMsg(texto, ok) {
+            const el = document.getElementById('reciboMsg');
+            if (!el) return;
+            el.textContent = texto;
+            el.classList.remove('hidden', 'text-green-700', 'text-red-600');
+            el.classList.add(ok ? 'text-green-700' : 'text-red-600');
+            setTimeout(() => el.classList.add('hidden'), 6000);
+        }
+
+        async function enviarReciboPago(pacienteId, evoId) {
+            try {
+                const resp = await fetch(`/api/historia?action=enviarReciboPago&id=${pacienteId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pacienteId, evoId })
+                });
+                const r = await resp.json().catch(() => ({}));
+                console.log('[enviarReciboPago]', resp.status, r.message || '');
+            } catch (e) {
+                console.error('[enviarReciboPago] Error de red:', e);
+            }
+        }
+
+        async function addEvolucion(id) {
+            const fecha = document.getElementById('evoFecha').value;
+            const valor = document.getElementById('evoValor').value || 0;
+            const pagado = document.getElementById('evoPagado').checked;
+            const nota = document.getElementById('evoNota').value;
+            const tarea = document.getElementById('evoTarea').value;
+            const hasPrueba = document.getElementById('hasPrueba').checked;
+            const pruebaResultados = document.getElementById('pruebaResultados').value;
+            const cierre = document.getElementById('evoCierre').value;
+            const strikeAction = document.querySelector('input[name="strikeAction"]:checked').value;
+            let strikeAnadido = false; let strikeRemovido = false;
+
+            if (strikeAction === 'add') { currentStrikes++; strikeAnadido = true; } 
+            else if (strikeAction === 'remove') { if (currentStrikes > 0) { currentStrikes--; strikeRemovido = true; } else { alert("No hay Strikes para remover."); return; } }
+            updateStrikeUI();
+
+            const nuevaEvo = { id: Date.now().toString(), fecha, valor, pagado, nota, tarea, cierre, strikeAnadido, strikeRemovido, hasPrueba, pruebaResultados, anexos: [], firmaPaciente: null, fechaFirmaPaciente: null };
+            evoluciones.push(nuevaEvo); renderTimeline();
+
+            const btn = document.getElementById('btnSaveEvo');
+            const originalText = btn.textContent; btn.disabled = true; btn.textContent = 'Guardando...';
+
+            try {
+                const response = await fetch(`/api/historia?action=saveEvolucion&id=${id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pacienteId: id, evoluciones: evoluciones, strikes: currentStrikes }) });
+                if (response.ok) {
+                    localStorage.removeItem(draftEvoKey);
+                    if (pagado && Number(valor) > 0) { enviarReciboPago(id, nuevaEvo.id); }
+                    document.getElementById('evolucionForm').reset(); 
+                    document.getElementById('evoFecha').valueAsDate = new Date(); 
+                    document.getElementById('hasPrueba').checked = false; 
+                    document.getElementById('evoPagado').checked = false;
+                    document.querySelector('input[name="strikeAction"][value="none"]').checked = true; togglePruebaBox();
+                    btn.textContent = '¡Guardada!'; setTimeout(() => { btn.textContent = originalText; btn.disabled = false; }, 2000);
+                    setTimeout(resizeAllTextareas, 50); 
+                }
+            } catch(e) { alert("Hubo un error al guardar."); evoluciones.pop(); if (strikeAnadido) currentStrikes--; if (strikeRemovido) currentStrikes++; updateStrikeUI(); renderTimeline(); btn.textContent = originalText; btn.disabled = false; }
+        }
+    </script>
+</body>
+</html>

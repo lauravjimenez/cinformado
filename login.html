@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso a Terapeuta - CInformado</title>
+        <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #F8F7F2;
+            color: #4A4A4A;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        main {
+            flex-grow: 1;
+        }
+        h1, h2, h3 {
+            font-family: 'Poppins', sans-serif;
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+        .btn-brand {
+            background-color: #3B4D4D;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn-brand:hover {
+            background-color: #2C3A38;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1);
+        }
+        .btn-brand:disabled {
+            background-color: #99aabb;
+            cursor: not-allowed;
+        }
+        .card {
+            background-color: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .input-styled {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 10px 15px;
+            width: 100%;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .input-styled:focus {
+            outline: none;
+            border-color: #3B4D4D;
+            box-shadow: 0 0 0 2px rgba(59, 77, 77, 0.2);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html">
+                <img src="logoprincipal.png" alt="Vincula Logo" class="h-11 w-auto">
+            </a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-12 flex items-center justify-center">
+        <div class="w-full max-w-md">
+            <div class="card">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold">Acceso a Terapeuta</h1>
+                    <p class="text-gray-500 mt-2">Ingresa tus credenciales para continuar.</p>
+                </div>
+                <form id="loginForm">
+                    <div class="mb-6">
+                        <label for="password" class="block mb-2 font-medium">Contraseña</label>
+                        <div class="relative">
+                            <input type="password" id="password" class="input-styled pr-10" required>
+                            <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none">
+                                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                <svg id="eyeSlashIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 .91-2.905 3.033-5.235 5.698-6.388M15 12a3 3 0 11-6 0 3 3 0 016 0zm6.364 4.364l-2.286-2.286A6.974 6.974 0 0019.5 12c-.183-.584-.41-1.153-.686-1.686m-2.286-2.286L15 6.5M5 5l14 14" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="errorMessage" class="text-red-600 text-center mb-4 hidden">Contraseña incorrecta.</div>
+                    <button type="submit" id="submitButton" class="btn-brand w-full">Ingresar al Portal</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-[#1a1a1a] text-white py-8">
+        <div class="container mx-auto text-center">
+            <p class="text-gray-400">&copy; 2025 Vincula. Todos los derechos reservados.</p>
+            
+            <!-- Puertas traseras de administración (Invisibles) -->
+            <div class="mt-2 flex justify-center gap-6">
+                <a href="https://cinformado.lauravjimenez.com/muro-valoraciones.html" class="text-[#1a1a1a] hover:text-gray-500 transition-colors text-xs select-none cursor-default hover:cursor-pointer">Muro</a>
+                <a href="https://cinformado.lauravjimenez.com/dejar-valoracion.html" class="text-[#1a1a1a] hover:text-gray-500 transition-colors text-xs select-none cursor-default hover:cursor-pointer">Valoraciones</a>
+                <a href="https://cinformado.lauravjimenez.com/restaurar-db.html" class="text-[#1a1a1a] hover:text-gray-500 transition-colors text-xs select-none cursor-default hover:cursor-pointer">backup</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const passwordInput = document.getElementById('password');
+            const errorMessage = document.getElementById('errorMessage');
+            const submitButton = document.getElementById('submitButton');
+            
+            submitButton.disabled = true;
+            submitButton.textContent = 'Verificando...';
+            errorMessage.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/authenticate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ password: passwordInput.value }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        sessionStorage.setItem('consultorAuth', 'true');
+                        window.location.href = 'portal-consentimientos.html';
+                    }
+                } else {
+                    errorMessage.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error('Error de red al autenticar:', error);
+                errorMessage.textContent = 'Error de conexión. Inténtalo de nuevo.';
+                errorMessage.classList.remove('hidden');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Ingresar al Portal';
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        });
+
+        // --- Lógica para mostrar/ocultar contraseña ---
+        const togglePasswordButton = document.getElementById('togglePassword');
+        const eyeIcon = document.getElementById('eyeIcon');
+        const eyeSlashIcon = document.getElementById('eyeSlashIcon');
+
+        togglePasswordButton.addEventListener('click', function () {
+            const passwordField = document.getElementById('password');
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+
+            eyeIcon.classList.toggle('hidden');
+            eyeSlashIcon.classList.toggle('hidden');
+        });
+    </script>
+
+</body>
+</html>

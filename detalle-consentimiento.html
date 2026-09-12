@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Consentimiento - CInformado</title>
+        <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #F8F7F2; color: #4A4A4A; }
+        h1, h2, h3 { font-family: 'Poppins', sans-serif; color: #1a1a1a; font-weight: 700; }
+        .card { background-color: white; border-radius: 16px; padding: 2.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        .detail-item { border-bottom: 1px solid #e5e7eb; padding: 0.75rem 0; }
+        .detail-item:last-child { border-bottom: none; }
+        .detail-label { font-weight: 600; color: #4b5563; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="portal-consentimientos.html" class="text-sm font-medium text-gray-600 hover:text-[#3B4D4D] flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                Volver al Portal
+            </a>
+            <a href="portal-consentimientos.html">
+                <img src="logoprincipal.png" alt="Vincula Logo" class="h-11 w-auto">
+            </a>
+            <button id="logoutButton" class="text-sm font-medium text-gray-600 hover:text-[#3B4D4D]">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <div id="loading" class="text-center py-20">
+            <h1 class="text-3xl animate-pulse text-[#3B4D4D]">Cargando detalle del consentimiento...</h1>
+        </div>
+
+        <div id="reportContent" class="hidden space-y-8">
+            <h1 id="reportTitle" class="text-3xl md:text-4xl font-bold text-center text-[#1a1a1a]">Detalle del Consentimiento</h1>
+
+            <!-- VISTA: CONSENTIMIENTO INDIVIDUAL -->
+            <div id="vistaIndividual" class="hidden space-y-8">
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4 border-b pb-2">Términos del Consentimiento Aceptado</h2>
+                    <div class="prose max-w-none space-y-4 text-gray-700 text-sm">
+                        <p id="consentimientoIntro" class="font-medium"></p>
+                        <div class="space-y-2"><h4 class="font-bold">2.1 Confidencialidad:</h4><p id="confidencialidadTexto"></p></div>
+                        <div class="space-y-2"><h4 class="font-bold">2.2 Propósito de la Intervención:</h4><p>El propósito es realizar una evaluación y/o intervención psicológica, la cual se llevará a cabo utilizando técnicas y enfoques validados por la psicología como ciencia.</p></div>
+                        <div class="space-y-2"><h4 class="font-bold">2.3 Naturaleza del Proceso:</h4><p>Se me ha informado que el proceso puede incluir entrevistas, pruebas psicométricas y tareas inter-sesión, y que mi participación activa es fundamental para el éxito del mismo.</p></div>
+                        <div class="space-y-2"><h4 class="font-bold">2.4 Proceso de evaluación:</h4><p id="evaluacionTexto"></p></div>
+                        <div class="space-y-2"><h4 class="font-bold">2.5 Costos económicos:</h4><p id="costosTexto"></p></div>
+                        <div class="space-y-2"><h4 class="font-bold">2.6 Tratamiento de Datos:</h4><p>Autorizo el tratamiento de mis datos personales de acuerdo con la Ley 1581 de 2012 y la política de tratamiento de datos de "Psic. Laura Jiménez Rivero", la cual he podido consultar.</p></div>
+                        <div class="space-y-2 bg-blue-50 p-3 rounded"><h4 class="font-bold text-[#3B4D4D]">2.7 Declaración y Modalidad de la Sesión:</h4><p id="declaracionTexto" class="font-medium text-[#3B4D4D]"></p></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="card">
+                        <h2 class="text-2xl font-bold mb-4 border-b pb-2">Información del Paciente</h2>
+                        <div id="demographicsContent" class="space-y-3"></div>
+                    </div>
+                    <div class="space-y-8">
+                        <div class="card">
+                            <h2 class="text-2xl font-bold mb-4 border-b pb-2">Firma Digital</h2>
+                            <div class="flex justify-center items-center p-4 bg-gray-50 rounded-lg">
+                                <img id="signatureImage" src="" alt="Firma del paciente" class="max-w-full h-auto">
+                            </div>
+                        </div>
+                        <div id="acudienteCard" class="card hidden">
+                            <h2 class="text-2xl font-bold mb-4 border-b pb-2 text-red-700">Información del Acudiente</h2>
+                            <div id="acudienteContent" class="space-y-3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA: CONSENTIMIENTO DE PAREJAS -->
+            <div id="vistaParejas" class="hidden space-y-8">
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4 border-b pb-2">Términos del Consentimiento (Pareja)</h2>
+                    <div class="prose max-w-none space-y-4 text-gray-700 text-sm">
+                        <p id="consentimientoParejaIntro" class="font-medium"></p>
+                        <div class="space-y-2"><h4 class="font-bold">3.1 Confidencialidad:</h4><p>Entendemos, aceptamos y somos conscientes del trabajo profesional que realizará la psicóloga designada, y que esta guardará una confidencialidad absoluta con nosotros, la cual será inviolable, salvo que nuestra integridad física se vea amenazada, y salvo los requerimientos de ley que así mismo pidan levantar la reserva profesional.</p></div>
+                        <div class="space-y-2"><h4 class="font-bold">3.2 Propósito de la Intervención:</h4><p>El propósito es realizar una evaluación y/o intervención psicológica, la cual se llevará a cabo utilizando técnicas y enfoques validados por la psicología como ciencia.</p></div>
+                        <div class="space-y-2"><h4 class="font-bold">3.3 Naturaleza del Proceso:</h4><p>Se nos ha informado que el proceso puede incluir entrevistas, pruebas psicométricas y tareas inter-sesión, y que nuestra participación activa es fundamental para el éxito del mismo.</p></div>
+                        <div class="space-y-2"><h4 class="font-bold">3.4 Proceso de evaluación:</h4><p>Autorizamos que nos sean practicadas pruebas psicométricas y demás herramientas diagnósticas que la psicóloga designada así considere necesario, a fin de establecer cabal y puntualmente un diagnóstico asertivo sobre el motivo de consulta.</p></div>
+                        <div class="space-y-2"><h4 class="font-bold">3.5 Costos económicos:</h4><p>Nos comprometemos a cubrir todos los gastos económicos en que se incurra con motivo de la atención que recibiremos, habiendo recibido la información de forma clara y oportuna y habiendo tenido la oportunidad de aceptar o rechazar dichas atenciones psicológicas y los costos asociados.</p></div>
+                        <div class="space-y-2"><h4 class="font-bold">3.6 Tratamiento de Datos:</h4><p>Autorizamos el tratamiento de nuestros datos personales de acuerdo con la Ley 1581 de 2012 y la política de tratamiento de datos de "Psic. Laura Jiménez Rivero", la cual hemos podido consultar.</p></div>
+                        <div class="space-y-2 bg-blue-50 p-3 rounded"><h4 class="font-bold text-[#3B4D4D]">3.7 Declaración y Modalidad de la Sesión:</h4><p id="declaracionTextoPareja" class="font-medium text-[#3B4D4D]"></p></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="card">
+                        <h2 class="text-xl font-bold mb-4 border-b pb-2 text-[#3B4D4D]" id="nombreTit1">Paciente 1</h2>
+                        <div id="demo1" class="space-y-2 text-sm"></div>
+                        <div class="mt-4 p-4 bg-gray-50 rounded text-center">
+                            <p class="text-xs font-bold mb-2">Firma Digital:</p>
+                            <img id="firma1" src="" class="h-20 mx-auto">
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h2 class="text-xl font-bold mb-4 border-b pb-2 text-[#3B4D4D]" id="nombreTit2">Paciente 2</h2>
+                        <div id="demo2" class="space-y-2 text-sm"></div>
+                        <div class="mt-4 p-4 bg-gray-50 rounded text-center">
+                            <p class="text-xs font-bold mb-2">Firma Digital:</p>
+                            <img id="firma2" src="" class="h-20 mx-auto">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- METADATOS -->
+            <div class="card bg-[#f4f6f8]">
+                <h2 class="text-xl font-bold mb-4 border-b border-gray-300 pb-2">Trazabilidad y Metadatos</h2>
+                <div id="metadataContent" class="space-y-3 text-sm"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('consultorAuth') !== 'true') {
+                window.location.href = 'login.html';
+                return;
+            }
+            document.getElementById('logoutButton').addEventListener('click', () => {
+                sessionStorage.removeItem('consultorAuth');
+                window.location.href = 'login.html';
+            });
+            fetchReport();
+        });
+
+        async function fetchReport() {
+            const loadingDiv = document.getElementById('loading');
+            const reportContentDiv = document.getElementById('reportContent');
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+
+            if (!id) {
+                loadingDiv.innerHTML = '<h1 class="text-3xl text-red-600">ID de consentimiento no proporcionado.</h1>';
+                return;
+            }
+
+            try {
+                let response = await fetch(`/api/consentimientos?action=getIndividual&id=${id}`);
+                let reporte;
+                
+                if (response.ok) {
+                    reporte = await response.json();
+                } else {
+                    response = await fetch(`/api/consentimientos?action=getPareja&id=${id}`);
+                    if (!response.ok) throw new Error('No se pudo cargar el consentimiento.');
+                    reporte = await response.json();
+                }
+                
+                displayUnifiedReport(reporte);
+
+                loadingDiv.classList.add('hidden');
+                reportContentDiv.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Error al cargar el reporte:", error);
+                loadingDiv.innerHTML = `<h1 class="text-3xl text-red-600">Error: ${error.message}</h1>`;
+            }
+        }
+
+        function buildDemoHTML(paciente) {
+            const safe = (val) => val || 'No especificado';
+            let html = `
+                <div class="detail-item"><span class="detail-label">Nombre Completo:</span> ${safe(paciente.nombre)}</div>
+                <div class="detail-item"><span class="detail-label">Documento:</span> ${safe(paciente.documentoIdentidad)} (${safe(paciente.tipoDocumento)})</div>
+                <div class="detail-item"><span class="detail-label">Fecha Nac:</span> ${safe(paciente.fechaNacimiento)} (Edad: ${safe(paciente.edad)})</div>
+                <div class="detail-item"><span class="detail-label text-[#3B4D4D]">EPS:</span> <span class="font-bold">${safe(paciente.eps)}</span></div>
+                <div class="detail-item"><span class="detail-label">Teléfono:</span> ${safe(paciente.telefonoContacto)}</div>
+                <div class="detail-item"><span class="detail-label">Email:</span> ${safe(paciente.email)}</div>
+                <div class="detail-item"><span class="detail-label">Ubicación:</span> ${paciente.ciudad ? paciente.ciudad + ', ' : ''}${paciente.departamento ? paciente.departamento + ', ' : ''}${safe(paciente.pais)}</div>
+            `;
+            
+            if (paciente.contactoEmergenciaNombre || paciente.contactoEmergenciaTelefono) {
+                html += `<div class="detail-item"><span class="detail-label text-red-700">Contacto Emergencia:</span> ${safe(paciente.contactoEmergenciaNombre)} (${safe(paciente.contactoEmergenciaTelefono)})</div>`;
+            }
+            
+            return html;
+        }
+
+        function displayUnifiedReport(reporte) {
+            const demoAntiguo = reporte.demograficos || {};
+            const isPareja = reporte.tipo === 'pareja' || reporte.paciente1 !== undefined || demoAntiguo.nombreCompleto1 !== undefined;
+
+            let allBase64 = [];
+            JSON.stringify(reporte, (key, value) => {
+                if (typeof value === 'string' && value.startsWith('data:image/')) {
+                    if(!allBase64.includes(value)) allBase64.push(value);
+                }
+                return value;
+            });
+
+            function getFirmaSegura(num) {
+                const explicita = (reporte.firmas && reporte.firmas[`firma${num}`]) || reporte[`firma${num}`] || reporte.firmaDigital;
+                if (explicita && explicita.startsWith('data:image/')) return explicita;
+                if (num === 1 && allBase64.length > 0) return allBase64[0];
+                if (num === 2 && allBase64.length > 1) return allBase64[1];
+                if (num === 2 && allBase64.length === 1) return allBase64[0]; 
+                return '';
+            }
+
+            const metadataDiv = document.getElementById('metadataContent');
+            const fechaFormateada = new Date(reporte.fecha).toLocaleString('es-CO', { dateStyle: 'full', timeStyle: 'short' });
+            metadataDiv.innerHTML = `
+                <div class="detail-item"><span class="detail-label">ID BD:</span> ${reporte.id}</div>
+                <div class="detail-item"><span class="detail-label">Fecha:</span> <span class="font-bold text-[#3B4D4D]">${fechaFormateada}</span></div>
+            `;
+
+            // Modalidad retrospectiva (buscando si se guardó en la estructura vieja o nueva)
+            const modalidad = reporte.consentimiento?.modalidad || reporte.demograficos?.modalidad || reporte.paciente1?.modalidad || reporte.modalidad || 'presencial';
+
+            if (isPareja) {
+                document.getElementById('reportTitle').textContent = `Consentimiento de Pareja`;
+                document.getElementById('vistaParejas').classList.remove('hidden');
+
+                let p1 = reporte.paciente1 || {}; let p2 = reporte.paciente2 || {};
+                
+                document.getElementById('consentimientoParejaIntro').textContent = `Nosotros, ${p1.nombre} (Doc: ${p1.documentoIdentidad}) y ${p2.nombre} (Doc: ${p2.documentoIdentidad}), declaramos voluntariamente que:`;
+                document.getElementById('declaracionTextoPareja').innerHTML = `Declaramos y damos fe de que nosotros, <strong>${p1.nombre}</strong> y <strong>${p2.nombre}</strong>, hemos leído y comprendido este documento durante una sesión <strong>${modalidad}</strong> con la Psicóloga Laura Jiménez Rivero, donde se nos ha garantizado un espacio para hacer preguntas, las cuales han sido respondidas a nuestra entera satisfacción. Al marcar esta casilla, aceptamos todos los términos descritos anteriormente.`;
+
+                document.getElementById('nombreTit1').textContent = `Paciente 1: ${(p1.nombre || '').split(' ')[0]}`;
+                document.getElementById('demo1').innerHTML = buildDemoHTML(p1);
+                const f1Data = getFirmaSegura(1); if (f1Data) document.getElementById('firma1').src = f1Data;
+
+                document.getElementById('nombreTit2').textContent = `Paciente 2: ${(p2.nombre || '').split(' ')[0]}`;
+                document.getElementById('demo2').innerHTML = buildDemoHTML(p2);
+                const f2Data = getFirmaSegura(2); if (f2Data) document.getElementById('firma2').src = f2Data;
+
+            } else {
+                const demo = reporte.demograficos;
+                document.getElementById('reportTitle').textContent = `Consentimiento Individual`;
+                document.getElementById('vistaIndividual').classList.remove('hidden');
+
+                document.getElementById('demographicsContent').innerHTML = buildDemoHTML(demo);
+                const fIndData = getFirmaSegura(1); if (fIndData) document.getElementById('signatureImage').src = fIndData;
+
+                const esMenor = parseInt(demo.edad, 10) < 18;
+                
+                // INYECCIÓN DINÁMICA DE TEXTOS LEGALES (INDIVIDUAL Y MENOR DE EDAD)
+                if (esMenor) {
+                    document.getElementById('consentimientoIntro').textContent = `Yo, ${demo.nombreAcudiente}, con documento de identidad ${demo.documentoAcudiente}, actuando como acudiente en calidad de ${demo.tipoAcudiente}, de ${demo.nombre}, con documento de identidad ${demo.documentoIdentidad}, declaro que:`;
+                    document.getElementById('confidencialidadTexto').textContent = 'Entiendo, acepto y soy consciente del trabajo profesional que realizará la psicóloga designada, y que esta guardará una confidencialidad absoluta con el (la) paciente menor de edad, la cual será inviolable, salvo que su integridad física se vea amenazada, y salvo los requerimientos de ley que así mismo pidan levantar la reserva profesional.';
+                    document.getElementById('evaluacionTexto').textContent = 'Autorizo que le sean practicadas pruebas psicométricas y demás herramientas diagnósticas que la psicóloga designada así considere necesario, a fin de establecer cabal y puntualmente un diagnóstico asertivo sobre el motivo de consulta del (la) paciente menor de edad en consulta.';
+                    document.getElementById('costosTexto').textContent = 'Me comprometo como acudiente del (la) paciente menor de edad, a cubrir todos los gastos económicos en que se incurra con motivo de la atención que recibirá, habiendo recibido la información de forma clara y oportuna y habiendo tenido la oportunidad de aceptar o rechazar dichas atenciones psicológicas y los costos asociados.';
+                    document.getElementById('declaracionTexto').innerHTML = `Declaro y doy fe de que yo, <strong>${demo.nombreAcudiente}</strong>, actuando como acudiente, he leído y comprendido este documento durante una sesión <strong>${modalidad}</strong> con la Psicóloga Laura Jiménez Rivero, donde se me ha garantizado un espacio para hacer preguntas, las cuales han sido respondidas a mi entera satisfacción. Al marcar esta casilla, acepto todos los términos descritos anteriormente.`;
+                    
+                    document.getElementById('acudienteCard').classList.remove('hidden');
+                    document.getElementById('acudienteContent').innerHTML = `
+                        <div class="detail-item"><span class="detail-label">Nombre Acudiente:</span> ${demo.nombreAcudiente}</div>
+                        <div class="detail-item"><span class="detail-label">Documento:</span> ${demo.documentoAcudiente}</div>
+                        <div class="detail-item"><span class="detail-label">Relación/Calidad de:</span> ${demo.tipoAcudiente}</div>
+                    `;
+                } else {
+                    document.getElementById('consentimientoIntro').textContent = `Yo, ${demo.nombre}, identificado/a con documento de identidad ${demo.documentoIdentidad}, declaro que:`;
+                    document.getElementById('confidencialidadTexto').textContent = 'Entiendo, acepto y soy consciente del trabajo profesional que realizará la psicóloga designada, y que esta guardará una confidencialidad absoluta con el (la) paciente, la cual será inviolable, salvo que su integridad física se vea amenazada, y salvo los requerimientos de ley que así mismo pidan levantar la reserva profesional.';
+                    document.getElementById('evaluacionTexto').textContent = 'Autorizo que sean practicadas pruebas psicométricas y demás herramientas diagnósticas que la psicóloga designada así considere necesario, a fin de establecer cabal y puntualmente un diagnóstico asertivo sobre el motivo de consulta.';
+                    document.getElementById('costosTexto').textContent = 'Me comprometo a cubrir todos los gastos económicos en que se incurra con motivo de la atención que recibiré, habiendo recibido la información de forma clara y oportuna y habiendo tenido la oportunidad de aceptar o rechazar dichas atenciones psicológicas y los costos asociados.';
+                    document.getElementById('declaracionTexto').innerHTML = `Declaro y doy fe de que yo, <strong>${demo.nombre}</strong>, he leído y comprendido este documento durante una sesión <strong>${modalidad}</strong> con la Psicóloga Laura Jiménez Rivero, donde se me ha garantizado un espacio para hacer preguntas, las cuales han sido respondidas a mi entera satisfacción. Al marcar esta casilla, acepto todos los términos descritos anteriormente.`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>

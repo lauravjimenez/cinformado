@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Firma Parejas - Vincula</title>
+        <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #F8F7F2; color: #4A4A4A; }
+        .btn-brand { background-color: #3B4D4D; color: white; padding: 12px 30px; border-radius: 9999px; font-weight: 600; transition: all 0.3s ease; }
+        .btn-brand:hover { background-color: #2C3A38; }
+        .btn-brand:disabled { background-color: #99aabb; cursor: not-allowed; }
+        .card { background-color: white; border-radius: 16px; padding: 2rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        .firma-canvas { border: 2px solid #3B4D4D; background-color: #fafbfc; border-radius: 8px; display: block; margin: 0 auto; touch-action: none; width: 100%; height: 150px; }
+    </style>
+</head>
+<body class="antialiased">
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-2 flex justify-between items-center">
+            <a href="index.html"><img src="logoprincipal.png" alt="Vincula Logo" class="h-10"></a>
+            <a href="parejas.html" class="text-sm font-medium text-gray-600 hover:text-[#3B4D4D] flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                Volver al Consentimiento
+            </a>
+        </div>
+    </header>
+    <main class="container mx-auto px-6 py-12">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-bold text-center mb-4">Paso Final: Firmas Digitales</h1>
+            <p class="text-base md:text-lg text-gray-600 text-center mb-8">Ambos deben firmar en sus respectivos recuadros o subir una imagen de su firma.</p>
+            
+            <form id="firmaForm" class="space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Firma Paciente 1 -->
+                    <div class="card text-center relative">
+                        <h2 class="text-xl font-bold mb-2 text-[#3B4D4D]" id="nombreFirma1">Paciente 1</h2>
+                        <p class="text-xs text-gray-500 mb-4">Firma del primer paciente registrado</p>
+                        
+                        <div class="mb-4 w-full flex justify-center">
+                            <canvas id="firma-canvas-1" width="300" height="150" class="firma-canvas cursor-crosshair"></canvas>
+                        </div>
+                        
+                        <div class="flex justify-center items-center space-x-4">
+                            <button type="button" id="limpiarFirma1" class="text-sm font-medium text-red-600 hover:text-red-800 transition-colors">
+                                Borrar Dibujo
+                            </button>
+                            <span class="text-gray-300">|</span>
+                            <label class="text-sm font-medium text-[#3B4D4D] hover:underline cursor-pointer flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                Subir Imagen
+                                <input type="file" id="uploadFirma1" accept="image/png, image/jpeg, image/jpg" class="hidden">
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Firma Paciente 2 -->
+                    <div class="card text-center relative">
+                        <h2 class="text-xl font-bold mb-2 text-[#3B4D4D]" id="nombreFirma2">Paciente 2</h2>
+                        <p class="text-xs text-gray-500 mb-4">Firma del segundo paciente registrado</p>
+                        
+                        <div class="mb-4 w-full flex justify-center">
+                            <canvas id="firma-canvas-2" width="300" height="150" class="firma-canvas cursor-crosshair"></canvas>
+                        </div>
+                        
+                        <div class="flex justify-center items-center space-x-4">
+                            <button type="button" id="limpiarFirma2" class="text-sm font-medium text-red-600 hover:text-red-800 transition-colors">
+                                Borrar Dibujo
+                            </button>
+                            <span class="text-gray-300">|</span>
+                            <label class="text-sm font-medium text-[#3B4D4D] hover:underline cursor-pointer flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                Subir Imagen
+                                <input type="file" id="uploadFirma2" accept="image/png, image/jpeg, image/jpg" class="hidden">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="server-error-message" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-center font-medium"></div>
+                <div id="success-message" class="hidden bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg text-center font-medium"></div>
+                
+                <div class="text-center mt-8">
+                    <button type="submit" id="submitButton" class="btn-brand text-lg w-full sm:w-auto shadow-lg hover:shadow-xl">
+                        Firmar y Enviar Acuerdo Conjunto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Verificar que los datos de la pareja vengan de la página anterior
+        const sessionData = sessionStorage.getItem('consentimiento_parejas');
+        if (!sessionData) { 
+            window.location.href = 'parejas.html'; 
+            return; 
+        }
+        
+        const datosCrudos = JSON.parse(sessionData);
+
+        // Actualizar los nombres en los títulos de las tarjetas
+        document.getElementById('nombreFirma1').textContent = `Firma de ${datosCrudos.nombreCompleto1.split(' ')[0]}`;
+        document.getElementById('nombreFirma2').textContent = `Firma de ${datosCrudos.nombreCompleto2.split(' ')[0]}`;
+
+        // Función reutilizable para configurar cada canvas de firma
+        function setupCanvas(canvasId, clearBtnId, uploadBtnId) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            let isDrawing = false; 
+            let lastX = 0; 
+            let lastY = 0;
+
+            const resizeCanvas = () => {
+                const ratio = window.devicePixelRatio || 1;
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                ctx.scale(ratio, ratio);
+                ctx.lineWidth = 2; 
+                ctx.lineJoin = 'round'; 
+                ctx.lineCap = 'round'; 
+                ctx.strokeStyle = '#3B4D4D';
+            };
+            
+            window.addEventListener('resize', resizeCanvas); 
+            resizeCanvas();
+
+            const getEventPos = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                return e.touches ? { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top } : { x: e.clientX - rect.left, y: e.clientY - rect.top };
+            };
+
+            const start = (e) => { isDrawing = true; const pos = getEventPos(e); [lastX, lastY] = [pos.x, pos.y]; };
+            const draw = (e) => { if (!isDrawing) return; e.preventDefault(); const pos = getEventPos(e); ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y); ctx.stroke(); [lastX, lastY] = [pos.x, pos.y]; };
+            const stop = () => isDrawing = false;
+
+            canvas.addEventListener('mousedown', start); 
+            canvas.addEventListener('mousemove', draw); 
+            canvas.addEventListener('mouseup', stop); 
+            canvas.addEventListener('mouseout', stop);
+            canvas.addEventListener('touchstart', start, {passive: false}); 
+            canvas.addEventListener('touchmove', draw, {passive: false}); 
+            canvas.addEventListener('touchend', stop);
+            
+            document.getElementById(clearBtnId).onclick = () => ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+            
+            // Lógica para inyectar la imagen subida en el canvas
+            document.getElementById(uploadBtnId).addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+                        // Calculamos la escala para que la firma quepa perfecta sin deformarse
+                        const scale = Math.min(canvas.offsetWidth / img.width, canvas.offsetHeight / img.height);
+                        const w = img.width * scale;
+                        const h = img.height * scale;
+                        const x = (canvas.offsetWidth / 2) - (w / 2);
+                        const y = (canvas.offsetHeight / 2) - (h / 2);
+                        ctx.drawImage(img, x, y, w, h);
+                    }
+                    img.src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            });
+            
+            return {
+                canvas: canvas,
+                ctx: ctx,
+                isEmpty: () => !new Uint32Array(ctx.getImageData(0, 0, canvas.width, canvas.height).data.buffer).some(c => c !== 0)
+            };
+        }
+
+        const c1 = setupCanvas('firma-canvas-1', 'limpiarFirma1', 'uploadFirma1');
+        const c2 = setupCanvas('firma-canvas-2', 'limpiarFirma2', 'uploadFirma2');
+
+        document.getElementById('firmaForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const errDiv = document.getElementById('server-error-message');
+            
+            if (c1.isEmpty() || c2.isEmpty()) { 
+                errDiv.textContent = 'Ambos pacientes deben realizar o subir su firma en los recuadros.'; 
+                errDiv.classList.remove('hidden'); 
+                return; 
+            }
+            
+            const submitButton = document.getElementById('submitButton');
+            submitButton.disabled = true; 
+            submitButton.textContent = 'Procesando y Enviando...';
+
+            try {
+                const finalData = {
+                    tipo: 'pareja',
+                    fechaDiligenciamiento: datosCrudos.fechaDiligenciamiento,
+                    paciente1: {
+                        nombre: datosCrudos.nombreCompleto1, 
+                        email: datosCrudos.email1,
+                        fechaNacimiento: datosCrudos.fechaNacimiento1, 
+                        edad: datosCrudos.edad1,
+                        pais: datosCrudos.pais1, 
+                        departamento: datosCrudos.departamento1 || null,
+                        ciudad: datosCrudos.municipio1 || datosCrudos.ciudad1 || null,
+                        direccion: datosCrudos.direccion1, 
+                        eps: datosCrudos.eps1, 
+                        tipoDocumento: datosCrudos.tipoDocumento1, 
+                        documentoIdentidad: datosCrudos.documentoIdentidad1,
+                        telefonoContacto: datosCrudos.telefonoContacto1,
+                        contactoEmergenciaNombre: datosCrudos.contactoEmergenciaNombre1 || null,
+                        contactoEmergenciaTelefono: datosCrudos.contactoEmergenciaTelefono1 || null
+                    },
+                    paciente2: {
+                        nombre: datosCrudos.nombreCompleto2, 
+                        email: datosCrudos.email2,
+                        fechaNacimiento: datosCrudos.fechaNacimiento2, 
+                        edad: datosCrudos.edad2,
+                        pais: datosCrudos.pais2, 
+                        departamento: datosCrudos.departamento2 || null,
+                        ciudad: datosCrudos.municipio2 || datosCrudos.ciudad2 || null,
+                        direccion: datosCrudos.direccion2, 
+                        eps: datosCrudos.eps2, 
+                        tipoDocumento: datosCrudos.tipoDocumento2, 
+                        documentoIdentidad: datosCrudos.documentoIdentidad2,
+                        telefonoContacto: datosCrudos.telefonoContacto2,
+                        contactoEmergenciaNombre: datosCrudos.contactoEmergenciaNombre2 || null,
+                        contactoEmergenciaTelefono: datosCrudos.contactoEmergenciaTelefono2 || null
+                    },
+                    consentimiento: { 
+                        fechaAceptacion: new Date().toISOString(), 
+                        userAgent: navigator.userAgent,
+                        modalidad: datosCrudos.modalidad || 'presencial'
+                    },
+                    firmas: { 
+                        firma1: c1.canvas.toDataURL('image/png'), 
+                        firma2: c2.canvas.toDataURL('image/png') 
+                    }
+                };
+
+                // Enviamos a la API unificada
+                const response = await fetch('/api/consentimientos?action=savePareja', {
+                    method: 'POST', 
+                    body: JSON.stringify(finalData), 
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    sessionStorage.removeItem('consentimiento_parejas');
+                    document.getElementById('success-message').textContent = '¡Consentimiento de pareja procesado con éxito! Revisa tu correo.';
+                    document.getElementById('success-message').classList.remove('hidden');
+                    errDiv.classList.add('hidden');
+                    submitButton.textContent = 'Enviado Correctamente';
+                    
+                    // Desactivar botones de firma
+                    document.getElementById('limpiarFirma1').disabled = true;
+                    document.getElementById('limpiarFirma2').disabled = true;
+                } else { 
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Problema en el servidor al guardar.'); 
+                }
+            } catch (error) {
+                console.error(error); 
+                errDiv.textContent = `Error: ${error.message}`; 
+                errDiv.classList.remove('hidden');
+                submitButton.disabled = false; 
+                submitButton.textContent = 'Firmar y Enviar Acuerdo Conjunto';
+            }
+        });
+    });
+    </script>
+</body>
+</html>

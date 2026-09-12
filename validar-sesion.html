@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Validar Sesión - Vincula</title>
+        <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #F8F7F2; color: #4A4A4A; }
+        .btn-brand { background-color: #3B4D4D; color: white; border-radius: 9999px; font-weight: 600; transition: all 0.3s ease; }
+        .btn-brand:hover:not(:disabled) { background-color: #2C3A38; }
+        .btn-brand:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        .card { background-color: white; border-radius: 16px; padding: 2rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        #firma-canvas { border: 2px dashed #cbd5e1; background-color: #f8fafc; border-radius: 12px; display: block; margin: 0 auto; touch-action: none; width: 100%; height: 200px; }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="max-w-md w-full">
+        <div class="text-center mb-6">
+            <img src="logoprincipal.png" alt="Vincula Logo" class="h-12 w-auto mx-auto mb-4">
+            <h1 class="text-2xl font-bold text-[#3B4D4D]">Confirmación de Sesión</h1>
+        </div>
+
+        <div id="loading" class="text-center py-10">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#3B4D4D] mb-4"></div>
+            <p class="text-gray-600 font-medium">Buscando registro...</p>
+        </div>
+
+        <div id="errorState" class="hidden text-center py-10 card">
+            <p class="text-red-600 font-bold mb-2">Enlace Inválido o Expirado</p>
+            <p class="text-sm text-gray-500">Comunícate con tu terapeuta para solicitar un nuevo enlace.</p>
+        </div>
+
+        <div id="successState" class="hidden text-center py-10 card border border-green-200">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <p class="text-xl text-green-700 font-bold mb-2">¡Validación Exitosa!</p>
+            <p class="text-sm text-gray-600">Tu confirmación ha sido guardada en la historia clínica. Ya puedes cerrar esta página.</p>
+        </div>
+
+        <form id="validarForm" class="hidden card space-y-6">
+            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-center">
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Paciente</p>
+                <p id="valNombre" class="font-bold text-[#3B4D4D] text-lg mb-3">---</p>
+                
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Fecha de la Sesión</p>
+                <p id="valFecha" class="font-semibold text-gray-800 mb-3">---</p>
+
+                <!-- Cambio implementado: Tarea Consignada en lugar de Cierre -->
+                <p class="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Tarea Consignada</p>
+                <p id="valTarea" class="text-sm text-gray-700 italic">"---"</p>
+            </div>
+
+            <div>
+                <p class="text-sm text-gray-600 text-center font-medium mb-4">Dibuja tu firma en el recuadro o importa una imagen para validar tu asistencia a esta sesión.</p>
+                
+                <canvas id="firma-canvas" width="300" height="200" class="cursor-crosshair"></canvas>
+                
+                <!-- 🛡️ NUEVO BLOQUE: Botones duales de Borrar e Importar -->
+                <div class="flex justify-between items-center mt-3 px-1">
+                    <button type="button" id="limpiarFirma" class="text-xs font-bold text-red-500 hover:underline">Borrar Dibujo</button>
+                    
+                    <label for="importarFirma" class="text-xs font-bold text-[#3B4D4D] cursor-pointer hover:underline flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        Importar Imagen
+                    </label>
+                    <input type="file" id="importarFirma" accept="image/png, image/jpeg, image/jpg" class="hidden">
+                </div>
+            </div>
+
+            <div id="formError" class="hidden bg-red-50 text-red-600 text-xs font-bold p-3 rounded text-center border border-red-200"></div>
+
+            <button type="submit" id="btnSubmit" class="btn-brand w-full py-4 text-lg">Validar Asistencia</button>
+            
+            <p class="text-[10px] text-gray-400 text-center mt-4">Esta firma es capturada criptográficamente con los datos de este dispositivo para garantizar su validez (No Repudio).</p>
+        </form>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const pacienteId = urlParams.get('id');
+        const evoId = urlParams.get('evoId');
+        
+        let canvas, ctx;
+        let isDrawing = false;
+        let lastX = 0, lastY = 0;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!pacienteId || !evoId) {
+                showError(); return;
+            }
+
+            try {
+                const res = await fetch(`/api/historia?action=getPublicEvo&id=${pacienteId}&evoId=${evoId}`);
+                if (!res.ok) throw new Error("No encontrado");
+                
+                const data = await res.json();
+                
+                if (data.yaFirmado) {
+                    document.getElementById('loading').classList.add('hidden');
+                    const success = document.getElementById('successState');
+                    success.classList.remove('hidden');
+                    success.querySelector('p').textContent = "Esta sesión ya fue validada previamente.";
+                    return;
+                }
+
+                document.getElementById('valNombre').textContent = data.nombre;
+                const dateParts = data.fecha.split('-');
+                document.getElementById('valFecha').textContent = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+                
+                document.getElementById('valTarea').textContent = `"${data.tarea}"`;
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('validarForm').classList.remove('hidden');
+                
+                initCanvas();
+                setupImageImport();
+
+            } catch (err) {
+                showError();
+            }
+        });
+
+        function showError() {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('errorState').classList.remove('hidden');
+        }
+
+        function initCanvas() {
+            canvas = document.getElementById('firma-canvas');
+            ctx = canvas.getContext('2d');
+            
+            const resizeCanvas = () => {
+                const ratio = window.devicePixelRatio || 1;
+                const rect = canvas.parentElement.getBoundingClientRect();
+                canvas.width = rect.width * ratio;
+                canvas.height = 200 * ratio;
+                ctx.scale(ratio, ratio);
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.strokeStyle = '#3B4D4D';
+            };
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            const getEventPos = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                return e.touches ? { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top } : { x: e.clientX - rect.left, y: e.clientY - rect.top };
+            };
+
+            canvas.addEventListener('mousedown', (e) => { isDrawing = true; const p = getEventPos(e); [lastX, lastY] = [p.x, p.y]; });
+            canvas.addEventListener('mousemove', (e) => { if (!isDrawing) return; e.preventDefault(); const p = getEventPos(e); ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke(); [lastX, lastY] = [p.x, p.y]; });
+            canvas.addEventListener('mouseup', () => isDrawing = false);
+            canvas.addEventListener('mouseout', () => isDrawing = false);
+            
+            canvas.addEventListener('touchstart', (e) => { e.preventDefault(); isDrawing = true; const p = getEventPos(e); [lastX, lastY] = [p.x, p.y]; }, {passive: false});
+            canvas.addEventListener('touchmove', (e) => { if (!isDrawing) return; e.preventDefault(); const p = getEventPos(e); ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(p.x, p.y); ctx.stroke(); [lastX, lastY] = [p.x, p.y]; }, {passive: false});
+            canvas.addEventListener('touchend', () => isDrawing = false);
+
+            document.getElementById('limpiarFirma').onclick = () => {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                ctx.clearRect(0, 0, rect.width, 200);
+                document.getElementById('importarFirma').value = "";
+            };
+        }
+
+        function setupImageImport() {
+            const fileInput = document.getElementById('importarFirma');
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const rect = canvas.parentElement.getBoundingClientRect();
+                        ctx.clearRect(0, 0, rect.width, 200);
+                        const hRatio = rect.width / img.width;
+                        const vRatio = 200 / img.height;
+                        const ratio  = Math.min(hRatio, vRatio);
+                        const centerShift_x = (rect.width - img.width * ratio) / 2;
+                        const centerShift_y = (200 - img.height * ratio) / 2;
+                        ctx.drawImage(img, 0, 0, img.width, img.height,
+                                      centerShift_x, centerShift_y, img.width * ratio, img.height * ratio);
+                    }
+                    img.src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            });
+        }
+
+        document.getElementById('validarForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errDiv = document.getElementById('formError');
+            
+            const isCanvasEmpty = !new Uint32Array(ctx.getImageData(0, 0, canvas.width, canvas.height).data.buffer).some(c => c !== 0);
+            if (isCanvasEmpty) {
+                errDiv.textContent = 'Por favor, dibuja tu firma o importa una imagen antes de continuar.';
+                errDiv.classList.remove('hidden'); return;
+            }
+
+            const btn = document.getElementById('btnSubmit');
+            btn.disabled = true; btn.textContent = 'Enviando Validación...';
+            errDiv.classList.add('hidden');
+
+            try {
+                const response = await fetch(`/api/historia?action=saveEvoSignature`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        pacienteId: pacienteId,
+                        evoId: evoId,
+                        firmaDigital: canvas.toDataURL('image/png')
+                    })
+                });
+
+                if (response.ok) {
+                    document.getElementById('validarForm').classList.add('hidden');
+                    document.getElementById('successState').classList.remove('hidden');
+                } else {
+                    throw new Error('Error al procesar.');
+                }
+            } catch (err) {
+                errDiv.textContent = 'Error de conexión. Inténtalo de nuevo.';
+                errDiv.classList.remove('hidden');
+                btn.disabled = false; btn.textContent = 'Validar Asistencia';
+            }
+        });
+    </script>
+</body>
+</html>

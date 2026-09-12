@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Firma Digital - Vincula</title>
+        <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #F8F7F2; color: #4A4A4A; }
+        .btn-brand { background-color: #3B4D4D; color: white; padding: 12px 30px; border-radius: 9999px; font-weight: 600; transition: all 0.3s ease; }
+        .btn-brand:hover { background-color: #2C3A38; }
+        .btn-brand:disabled { background-color: #99aabb; cursor: not-allowed; }
+        .card { background-color: white; border-radius: 16px; padding: 2rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        #firma-canvas { border: 2px solid #3B4D4D; background-color: #fafbfc; border-radius: 8px; display: block; margin: 0 auto; touch-action: none; width: 100%; height: 150px; }
+    </style>
+</head>
+<body class="antialiased">
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="container mx-auto px-6 py-2 flex justify-between items-center">
+            <a href="https://www.lauravjimenez.com" target="_blank" class="flex-shrink-0"><img src="logoprincipal.png" alt="Vincula Logo" class="h-10"></a>
+            <a href="individual.html" class="text-sm font-medium text-gray-600 hover:text-[#3B4D4D] flex items-center"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>Volver al Consentimiento</a>
+        </div>
+    </header>
+    <main class="container mx-auto px-6 py-12">
+        <div class="max-w-xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-bold text-center mb-4">Paso Final: Firma Digital</h1>
+            <p class="text-base md:text-lg text-gray-600 text-center mb-8">Por favor, firma en el recuadro o sube una imagen de tu firma para completar tu consentimiento.</p>
+            <form id="firmaForm">
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-4 text-[#3B4D4D]">Tu Firma</h2>
+                    <p class="mb-4 text-gray-600 text-sm">Al firmar, confirmas que has leído y aceptado los términos en la página anterior.</p>
+                    
+                    <div class="mb-4 flex justify-center w-full">
+                        <canvas id="firma-canvas" width="350" height="150" class="cursor-crosshair"></canvas>
+                    </div>
+                    
+                    <!-- NUEVO: Botones de Acción: Borrar o Subir Imagen -->
+                    <div class="flex justify-center items-center space-x-4 mb-6">
+                        <button type="button" id="limpiarFirma" class="text-sm font-medium text-red-600 hover:text-red-800 transition-colors">
+                            Borrar Dibujo
+                        </button>
+                        <span class="text-gray-300">|</span>
+                        <label class="text-sm font-medium text-[#3B4D4D] hover:underline cursor-pointer flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                            Subir Imagen
+                            <input type="file" id="uploadFirma" accept="image/png, image/jpeg, image/jpg" class="hidden">
+                        </label>
+                    </div>
+
+                    <div id="server-error-message" class="hidden mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-center font-medium"></div>
+                    <div id="success-message" class="hidden mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg text-center font-medium"></div>
+                    <div class="mt-8 text-center"><button type="submit" id="submitButton" class="btn-brand text-lg shadow-lg hover:shadow-xl w-full sm:w-auto">Firmar y Enviar</button></div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sessionData = sessionStorage.getItem('consentimiento_demograficos');
+        if (!sessionData) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        const canvas = document.getElementById('firma-canvas');
+        const ctx = canvas.getContext('2d');
+        const firmaForm = document.getElementById('firmaForm');
+        const submitButton = document.getElementById('submitButton');
+        const serverErrorDiv = document.getElementById('server-error-message');
+        const successDiv = document.getElementById('success-message');
+        
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        function resizeCanvas() {
+            const ratio = window.devicePixelRatio || 1;
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            ctx.scale(ratio, ratio);
+            ctx.lineWidth = 2;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#3B4D4D';
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function getEventPosition(e) {
+            const rect = canvas.getBoundingClientRect();
+            if (e.touches && e.touches[0]) {
+                return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+            }
+            return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        }
+
+        const startDrawing = (e) => { isDrawing = true; const pos = getEventPosition(e);[lastX, lastY] = [pos.x, pos.y]; };
+        const draw = (e) => { if (!isDrawing) return; e.preventDefault(); const pos = getEventPosition(e); ctx.beginPath(); ctx.moveTo(lastX, lastY); ctx.lineTo(pos.x, pos.y); ctx.stroke();[lastX, lastY] = [pos.x, pos.y]; };
+        const stopDrawing = () => isDrawing = false;
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', stopDrawing);
+
+        document.getElementById('limpiarFirma').onclick = () => { ctx.clearRect(0, 0, canvas.width, canvas.height); serverErrorDiv.classList.add('hidden'); successDiv.classList.add('hidden'); };
+        
+        // NUEVO: Lógica para inyectar la imagen subida en el canvas
+        document.getElementById('uploadFirma').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+                    const w = img.width * scale;
+                    const h = img.height * scale;
+                    const x = (canvas.width / 2) - (w / 2);
+                    const y = (canvas.height / 2) - (h / 2);
+                    ctx.drawImage(img, x, y, w, h);
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(file);
+        });
+
+        const isCanvasEmpty = () => !new Uint32Array(ctx.getImageData(0, 0, canvas.width, canvas.height).data.buffer).some(color => color !== 0);
+
+        firmaForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (isCanvasEmpty()) { serverErrorDiv.textContent = 'Por favor, realiza o sube tu firma para continuar.'; serverErrorDiv.classList.remove('hidden'); return; }
+            
+            submitButton.disabled = true;
+            submitButton.textContent = 'Procesando y Enviando...';
+
+            try {
+                const datosCrudos = JSON.parse(sessionData);
+                const firmaDigital = canvas.toDataURL('image/png');
+
+                const finalData = {
+                    demograficos: {
+                        nombre: datosCrudos.nombreCompleto,
+                        email: datosCrudos.email,
+                        fechaDiligenciamiento: datosCrudos.fechaDiligenciamiento,
+                        fechaNacimiento: datosCrudos.fechaNacimiento,
+                        edad: datosCrudos.edad,
+                        pais: datosCrudos.pais,
+                        departamento: datosCrudos.departamento || null,
+                        ciudad: datosCrudos.municipio || datosCrudos.ciudad || null,
+                        direccion: datosCrudos.direccion,
+                        eps: datosCrudos.eps || null, 
+                        tipoDocumento: datosCrudos.tipoDocumento,
+                        documentoIdentidad: datosCrudos.documentoIdentidad,
+                        telefonoContacto: datosCrudos.telefonoContacto,
+                        contactoEmergenciaNombre: datosCrudos.contactoEmergenciaNombre,
+                        contactoEmergenciaTelefono: datosCrudos.contactoEmergenciaTelefono,
+                        nombreAcudiente: datosCrudos.nombreAcudiente || null,
+                        tipoAcudiente: datosCrudos.tipoAcudiente || null,
+                        documentoAcudiente: datosCrudos.documentoAcudiente || null,
+                        telefonoAcudiente: datosCrudos.telefonoAcudiente || null
+                    },
+                    consentimiento: {
+                        fechaAceptacion: new Date().toISOString(),
+                        userAgent: navigator.userAgent,
+                        modalidad: datosCrudos.modalidad || 'presencial' // APLICADO
+                    },
+                    firmaDigital: firmaDigital
+                };
+
+                const response = await fetch('/api/consentimientos?action=saveIndividual', {
+                    method: 'POST',
+                    body: JSON.stringify(finalData),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    sessionStorage.removeItem('consentimiento_demograficos');
+                    successDiv.textContent = '¡Consentimiento enviado con éxito! Revisa tu correo.';
+                    successDiv.classList.remove('hidden');
+                    serverErrorDiv.classList.add('hidden');
+                    document.getElementById('limpiarFirma').disabled = true;
+                    submitButton.textContent = 'Enviado Correctamente';
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Hubo un problema en el servidor.');
+                }
+            } catch (error) {
+                console.error("Error al guardar:", error);
+                serverErrorDiv.textContent = `Error: ${error.message}`;
+                serverErrorDiv.classList.remove('hidden');
+                submitButton.disabled = false;
+                submitButton.textContent = 'Firmar y Enviar';
+            }
+        });
+    });
+    </script>
+</body>
+</html>
