@@ -11,7 +11,7 @@ import { Buffer } from 'buffer';
 function setupPdfBuilder(pdfDoc, font, boldFont) {
     let page = pdfDoc.addPage();
     const { width, height } = page.getSize();
-    const margin = 50;
+    const margin = 42;
     const maxWidth = width - 2 * margin;
     let y = height - margin;
     const brandColor = rgb(0.231, 0.302, 0.302); 
@@ -27,20 +27,20 @@ function setupPdfBuilder(pdfDoc, font, boldFont) {
     const drawHeader = () => {
         page.drawText('Psic. Laura Jiménez Rivero - Psicología que Transforma', { x: margin, y, font: boldFont, size: 10, color: brandColor });
         page.drawLine({ start: { x: margin, y: y - 5 }, end: { x: width - margin, y: y - 5 }, thickness: 1, color: brandColor });
-        y -= 30;
+        y -= 20;
     };
 
     const drawTitle = (text) => {
         checkPageBreak(30);
-        page.drawText(text, { x: margin, y, font: boldFont, size: 16, color: brandColor });
-        y -= 25;
+        page.drawText(text, { x: margin, y, font: boldFont, size: 15, color: brandColor });
+        y -= 16;
     };
 
     const drawSubTitle = (text) => {
         checkPageBreak(25);
-        y -= 10;
-        page.drawText(text, { x: margin, y, font: boldFont, size: 12, color: brandColor });
-        y -= 15;
+        y -= 6;
+        page.drawText(text, { x: margin, y, font: boldFont, size: 11, color: brandColor });
+        y -= 9;
     };
 
     const drawTextWrap = (text, size = 10, isBold = false) => {
@@ -53,7 +53,7 @@ function setupPdfBuilder(pdfDoc, font, boldFont) {
             if (testWidth > maxWidth && line !== '') {
                 checkPageBreak(size + 5);
                 page.drawText(line, { x: margin, y, font: fontToUse, size, color: rgb(0.2, 0.2, 0.2) });
-                y -= (size + 5);
+                y -= (size + 2);
                 line = word + ' ';
             } else {
                 line = testLine;
@@ -62,21 +62,21 @@ function setupPdfBuilder(pdfDoc, font, boldFont) {
         if (line.trim() !== '') {
             checkPageBreak(size + 5);
             page.drawText(line, { x: margin, y, font: fontToUse, size, color: rgb(0.2, 0.2, 0.2) });
-            y -= (size + 10);
+            y -= (size + 4);
         }
     };
 
     const drawClause = (title, text) => {
         checkPageBreak(30);
-        page.drawText(title, { x: margin, y, font: boldFont, size: 10 });
-        y -= 12;
-        drawTextWrap(text, 10, false);
+        page.drawText(title, { x: margin, y, font: boldFont, size: 9 });
+        y -= 11;
+        drawTextWrap(text, 9, false);
     };
 
     const drawDetail = (label, value) => {
         if (!value) return;
         checkPageBreak(15);
-        page.drawText(`${label}:`, { x: margin, y, font: boldFont, size: 10, color: brandColor });
+        page.drawText(`${label}:`, { x: margin, y, font: boldFont, size: 9, color: brandColor });
         
         const valueX = margin + 140;
         const valueMaxWidth = maxWidth - 140;
@@ -84,38 +84,38 @@ function setupPdfBuilder(pdfDoc, font, boldFont) {
         let line = '';
         for(let word of words) {
             const testLine = line + word + ' ';
-            const textWidth = font.widthOfTextAtSize(testLine, 10);
+            const textWidth = font.widthOfTextAtSize(testLine, 9);
             if(textWidth > valueMaxWidth && line !== '') {
-                page.drawText(line, { x: valueX, y, font, size: 10 });
-                y -= 12;
+                page.drawText(line, { x: valueX, y, font, size: 9 });
+                y -= 11;
                 checkPageBreak(15);
                 line = word + ' ';
             } else {
                 line = testLine;
             }
         }
-        page.drawText(line, { x: valueX, y, font, size: 10 });
-        y -= 18;
+        page.drawText(line, { x: valueX, y, font, size: 9 });
+        y -= 13;
     };
 
     const drawSignature = async (base64Image, name, subtitle) => {
-        checkPageBreak(100);
-        y -= 60; 
+        checkPageBreak(90);
+        y -= 30; 
         try {
             const imageBytes = Buffer.from(base64Image.split(',')[1], 'base64');
             const pngImage = await pdfDoc.embedPng(imageBytes);
-            page.drawImage(pngImage, { x: margin, y, width: 120, height: 60 });
+            page.drawImage(pngImage, { x: margin, y, width: 110, height: 48 });
         } catch (e) { console.error("Error incrustando firma", e); }
         
         page.drawLine({ start: { x: margin, y: y - 5 }, end: { x: margin + 180, y: y - 5 }, thickness: 1, color: brandColor });
-        page.drawText(name, { x: margin, y: y - 18, font: boldFont, size: 10 });
-        page.drawText(subtitle, { x: margin, y: y - 30, font: font, size: 9, color: rgb(0.4, 0.4, 0.4) });
-        y -= 45;
+        page.drawText(name, { x: margin, y: y - 16, font: boldFont, size: 10 });
+        page.drawText(subtitle, { x: margin, y: y - 28, font: font, size: 9, color: rgb(0.4, 0.4, 0.4) });
+        y -= 38;
     };
 
     const drawDualSignatures = async (b64_1, name1, b64_2, name2) => {
-        checkPageBreak(100);
-        y -= 60; 
+        checkPageBreak(90);
+        y -= 30; 
         try {
             const img1Bytes = Buffer.from(b64_1.split(',')[1], 'base64');
             const png1 = await pdfDoc.embedPng(img1Bytes);
@@ -343,7 +343,20 @@ export default async function handler(request, response) {
                         from: 'Notificación Consentimiento Informado <psic@lauravjimenez.com>',
                         to: dataToSave.demograficos.email,
                         subject: `Copia de tu Consentimiento Informado - Psic. Laura Jiménez Rivero`,
-                        html: `<p>Estimado/a ${dataToSave.demograficos.nombre},</p><p>Recibes una copia de tu consentimiento informado para la atención psicológica.</p><p>Adjunto, encontrarás el PDF con tu firma y la totalidad de las cláusulas legales aceptadas.</p>`,
+                        html: `
+                            <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 10px; overflow: hidden;">
+                                <div style="background-color: #3B4D4D; padding: 20px; text-align: center;">
+                                    <h2 style="color: white; margin: 0;">Consentimiento Informado</h2>
+                                </div>
+                                <div style="padding: 30px;">
+                                    <h3 style="color: #3B4D4D;">Copia de tu consentimiento</h3>
+                                    <p>Estimado/a <strong>${dataToSave.demograficos.nombre}</strong>,</p>
+                                    <p>Recibes una copia de tu consentimiento informado para la atención psicológica.</p>
+                                    <p>Adjunto encontrarás el PDF con tu firma y la totalidad de las cláusulas legales aceptadas.</p>
+                                    <p style="font-size: 12px; color: #666; margin-top: 30px;">Psic. Laura Jiménez Rivero</p>
+                                </div>
+                            </div>
+                        `,
                         attachments: [{ filename: `Consentimiento Informado - ${dataToSave.demograficos.nombre}.pdf`, content: Buffer.from(pdfBuffer) }]
                     };
                     const mailToTerapeuta = {
