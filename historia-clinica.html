@@ -762,8 +762,8 @@
             const patientId = urlParams.get('id');
             if (!patientId) { document.getElementById('loading').innerHTML = '<span class="text-red-600">Acceso denegado: ID de paciente no proporcionado.</span>'; return; }
 
-            document.getElementById('evoFecha').valueAsDate = new Date();
-            document.getElementById('fechaSesionCero').valueAsDate = new Date();
+            document.getElementById('evoFecha').value = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
+            document.getElementById('fechaSesionCero').value = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
             
             draftCeroKey = `draft_cero_${patientId}`;
             draftPlanKey = `draft_plan_${patientId}`;
@@ -1726,7 +1726,7 @@
                     localStorage.removeItem(draftEvoKey);
                     if (pagado && Number(valor) > 0) { enviarReciboPago(id, nuevaEvo.id); }
                     document.getElementById('evolucionForm').reset(); 
-                    document.getElementById('evoFecha').valueAsDate = new Date(); 
+                    document.getElementById('evoFecha').value = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' }); 
                     document.getElementById('hasPrueba').checked = false; 
                     document.getElementById('evoPagado').checked = false;
                     togglePruebaBox();
