@@ -169,7 +169,7 @@ export default async function handler(request, response) {
                 let extraUrlStr = '';
 
                 if (isPresencial) {
-                    const dir = direccionConsultorio || 'Consultorio Vincula';
+                    const dir = direccionConsultorio || 'Consultorio Psic. Laura Jiménez Rivero';
                     locationStr = dir;
                     meetDescription = `Tu sesión se llevará a cabo de forma PRESENCIAL en la siguiente dirección:\\n${dir}`;
                     if (meetUrl) meetDescription += `\\n\\n(Enlace alternativo virtual por si hay contratiempos: ${meetUrl})`;
@@ -180,7 +180,7 @@ export default async function handler(request, response) {
                         ${meetUrl ? `<p style="margin: 0; font-size: 12px; color: #666;"><strong>Enlace alternativo (Virtual):</strong> <a href="${meetUrl}" target="_blank" style="color: #3B4D4D;">${meetUrl}</a></p>` : ''}
                     `;
                 } else {
-                    locationStr = meetUrl ? 'Videollamada (Google Meet)' : 'Consultorio Vincula';
+                    locationStr = meetUrl ? 'Videollamada (Google Meet)' : 'Consultorio Psic. Laura Jiménez Rivero';
                     meetDescription = meetUrl ? `Para ingresar a la videollamada, haz clic en el siguiente enlace de Google Meet:\\n${meetUrl}` : 'La sesión será presencial o el terapeuta te enviará el enlace pronto.';
                     
                     emailLocationHtml = `
@@ -208,9 +208,9 @@ export default async function handler(request, response) {
                     `DTSTAMP:${icsDates.stamp}`,
                     `DTSTART:${icsDates.start}`,
                     `DTEND:${icsDates.end}`,
-                    'ORGANIZER;CN="Vincula":mailto:psic@lauravjimenez.com',
+                    'ORGANIZER;CN="Psic. Laura Jiménez Rivero":mailto:psic@lauravjimenez.com',
                     `ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN="${safeName}":mailto:${emailPaciente}`,
-                    'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CN="Vincula":mailto:psic@lauravjimenez.com',
+                    'ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=FALSE;CN="Psic. Laura Jiménez Rivero":mailto:psic@lauravjimenez.com',
                     `SUMMARY:Sesión de Psicología - ${safeName}`,
                     `DESCRIPTION:${safeDescription}`,
                     `LOCATION:${safeLocation}`
@@ -323,7 +323,7 @@ export default async function handler(request, response) {
                 await resend.emails.send({
                     from: 'Psic. Laura Jiménez Rivero - Citas <psic@lauravjimenez.com>',
                     to: emailPaciente,
-                    subject: `❌ Cita Cancelada - Vincula`,
+                    subject: `❌ Cita Cancelada - Psic. Laura Jiménez Rivero`,
                     html: `
                         <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 10px; overflow: hidden;">
                             <div style="background-color: #e11d48; padding: 20px; text-align: center;">
