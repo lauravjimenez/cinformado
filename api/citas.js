@@ -238,7 +238,7 @@ export default async function handler(request, response) {
                 const primerNombre = nombrePaciente.split(' ')[0];
 
                 await resend.emails.send({
-                    from: 'Citas Vincula <psic@lauravjimenez.com>',
+                    from: 'Psic. Laura Jiménez Rivero - Citas <psic@lauravjimenez.com>',
                     to: emailPaciente,
                     subject: `📅 Confirmación de Sesión - ${fechaBonita}`,
                     html: `
@@ -321,7 +321,7 @@ export default async function handler(request, response) {
                 const primerNombre = nombrePaciente.split(' ')[0];
 
                 await resend.emails.send({
-                    from: 'Citas Vincula <psic@lauravjimenez.com>',
+                    from: 'Psic. Laura Jiménez Rivero - Citas <psic@lauravjimenez.com>',
                     to: emailPaciente,
                     subject: `❌ Cita Cancelada - Vincula`,
                     html: `
@@ -344,7 +344,7 @@ export default async function handler(request, response) {
                 });
                 
                 await resend.emails.send({
-                    from: 'Citas Vincula <psic@lauravjimenez.com>',
+                    from: 'Psic. Laura Jiménez Rivero - Citas <psic@lauravjimenez.com>',
                     to: 'psic@lauravjimenez.com', 
                     subject: `❌ CITA CANCELADA: ${primerNombre}`,
                     html: `<p>Se ha cancelado correctamente la cita de <strong>${nombrePaciente}</strong> programada para el ${fechaStr}.</p>`
