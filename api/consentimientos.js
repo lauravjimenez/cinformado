@@ -25,7 +25,7 @@ function setupPdfBuilder(pdfDoc, font, boldFont) {
     };
 
     const drawHeader = () => {
-        page.drawText('Vincula - Psicología que Transforma', { x: margin, y, font: boldFont, size: 10, color: brandColor });
+        page.drawText('Psic. Laura Jiménez Rivero - Psicología que Transforma', { x: margin, y, font: boldFont, size: 10, color: brandColor });
         page.drawLine({ start: { x: margin, y: y - 5 }, end: { x: width - margin, y: y - 5 }, thickness: 1, color: brandColor });
         y -= 30;
     };
@@ -342,16 +342,16 @@ export default async function handler(request, response) {
                     const mailToPaciente = {
                         from: 'Notificación Consentimiento Informado <psic@lauravjimenez.com>',
                         to: dataToSave.demograficos.email,
-                        subject: `Copia de tu Consentimiento Informado - Vincula`,
+                        subject: `Copia de tu Consentimiento Informado - Psic. Laura Jiménez Rivero`,
                         html: `<p>Estimado/a ${dataToSave.demograficos.nombre},</p><p>Recibes una copia de tu consentimiento informado para la atención psicológica.</p><p>Adjunto, encontrarás el PDF con tu firma y la totalidad de las cláusulas legales aceptadas.</p>`,
-                        attachments: [{ filename: `Consentimiento-${docRef.id}.pdf`, content: Buffer.from(pdfBuffer) }]
+                        attachments: [{ filename: `Consentimiento Informado - ${dataToSave.demograficos.nombre}.pdf`, content: Buffer.from(pdfBuffer) }]
                     };
                     const mailToTerapeuta = {
                         from: 'Notificación Consentimiento Informado <psic@lauravjimenez.com>',
                         to: 'psic@lauravjimenez.com', 
                         subject: `Nuevo Consentimiento Firmado: ${dataToSave.demograficos.nombre}`,
                         html: `<p>Has recibido un consentimiento firmado de <strong>${dataToSave.demograficos.nombre}</strong>.</p><p>Revisa el PDF adjunto para ver los datos completos y la firma.</p>`,
-                        attachments: [{ filename: `Consentimiento-${docRef.id}.pdf`, content: Buffer.from(pdfBuffer) }]
+                        attachments: [{ filename: `Consentimiento Informado - ${dataToSave.demograficos.nombre}.pdf`, content: Buffer.from(pdfBuffer) }]
                     };
                     await Promise.all([ resend.emails.send(mailToPaciente), resend.emails.send(mailToTerapeuta) ]);
                 }
@@ -366,7 +366,7 @@ export default async function handler(request, response) {
                 
                 if (resend) {
                     const pdfBuffer = await crearPDFParejas(dataToSave);
-                    const attachments = [{ filename: `Consentimiento-Pareja-${docRef.id}.pdf`, content: Buffer.from(pdfBuffer) }];
+                    const attachments = [{ filename: `Consentimiento Informado - ${dataToSave.paciente1.nombre} y ${dataToSave.paciente2.nombre}.pdf`, content: Buffer.from(pdfBuffer) }];
                     const correos = [
                         { to: dataToSave.paciente1.email, subject: 'Copia de Consentimiento de Pareja' },
                         { to: dataToSave.paciente2.email, subject: 'Copia de Consentimiento de Pareja' },
