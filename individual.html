@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         cookieBanner.classList.remove('show');
     });
 
-    document.getElementById('fechaDiligenciamiento').valueAsDate = new Date();
+    document.getElementById('fechaDiligenciamiento').value = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
     
     async function cargarGeodata() {
         try {
