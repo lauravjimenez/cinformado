@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const continueToSignatureButton = document.getElementById('continueToSignatureButton');
     
     let geodata = {};
-    document.getElementById('fechaDiligenciamiento').valueAsDate = new Date();
+    document.getElementById('fechaDiligenciamiento').value = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
     
     async function cargarGeodata() {
         try {
