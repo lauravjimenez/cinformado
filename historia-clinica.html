@@ -169,7 +169,7 @@
                             Perfil Ejecutivo del Paciente
                         </h3>
                         <button type="button" onclick="generarPerfilAuto()" class="no-print text-xs font-bold text-[#3B4D4D] hover:text-blue-800 flex items-center bg-blue-100 px-3 py-1.5 rounded-full transition-colors shadow-sm">
-                            ✨ Autogenerar con HALCÓN
+                            ✨ Autogenerar Diagnóstico
                         </button>
                     </div>
                     <textarea id="perfilEjecutivo" rows="2" class="textarea-styled text-sm text-gray-800 bg-white/80 border-blue-200 focus:border-[#3B4D4D] mb-4" placeholder="Resume aquí el perfil general del paciente, su contexto y hacia dónde evoluciona..."></textarea>
@@ -190,7 +190,7 @@
                 <div class="flex bg-gray-200/70 p-1.5 rounded-xl border border-gray-200 no-print overflow-x-auto space-x-2 mb-6 shadow-inner">
                     <button class="tab-btn bg-[#3B4D4D] text-white shadow-md rounded-lg px-6 py-3 font-bold flex items-center whitespace-nowrap transition-all" onclick="switchTab('tab-sesion-cero', this)">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg>
-                        1. Sesión Cero (HALCÓN)
+                        1. Sesión Cero
                     </button>
                     <button class="tab-btn text-gray-600 hover:bg-white hover:text-[#3B4D4D] rounded-lg px-6 py-3 font-bold flex items-center whitespace-nowrap transition-all" onclick="switchTab('tab-plan-trabajo', this)">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
@@ -219,7 +219,7 @@
 
                         <div class="space-y-6">
                             <div class="flex flex-col md:flex-row md:items-center justify-between border-b pb-2 mb-4 gap-4">
-                                <h4 class="text-lg font-bold text-[#3B4D4D]">Diagnóstico Existencial (Método HALCÓN)</h4>
+                                <h4 class="text-lg font-bold text-[#3B4D4D]">Diagnóstico</h4>
                                 <div class="mt-2 md:mt-0 flex flex-wrap gap-4 items-center">
                                     <div class="flex items-center space-x-3 print:hidden">
                                         <div class="flex items-center">
@@ -1114,7 +1114,7 @@
 
             const hab = document.getElementById('habilidades').value.trim(); const asp = document.getElementById('aspiracion').value.trim(); const cre = document.getElementById('creencias').value.trim(); const con = document.getElementById('construccion').value.trim();
             if (hab || asp || cre || con) {
-                texto += `--- DIAGNÓSTICO HALCÓN ---\n`;
+                texto += `--- DIAGNÓSTICO ---\n`;
                 if (hab) texto += `• Habilidades: ${hab}\n`; if (asp) texto += `• Motivaciones: ${asp}\n`; if (cre) texto += `• Prácticas de autocuidado: ${cre}\n`; if (con) texto += `• Barreras: ${con}\n`;
                 texto += `\n`;
             }
@@ -1415,7 +1415,7 @@
                     fecha: document.getElementById('fechaSesionCero').value,
                     valor: document.getElementById('valorSesionCero').value,
                     pagado: document.getElementById('pagadoSesionCero').checked,
-                    nota: "MOTIVO DE CONSULTA:\n" + document.getElementById('motivoConsulta').value + "\n\nDIAGNÓSTICO HALCÓN:\n• Habilidades: " + document.getElementById('habilidades').value + "\n• Motivaciones: " + document.getElementById('aspiracion').value + "\n• Prácticas de autocuidado: " + document.getElementById('creencias').value + "\n• Barreras: " + document.getElementById('construccion').value,
+                    nota: "MOTIVO DE CONSULTA:\n" + document.getElementById('motivoConsulta').value + "\n\nDIAGNÓSTICO:\n• Habilidades: " + document.getElementById('habilidades').value + "\n• Motivaciones: " + document.getElementById('aspiracion').value + "\n• Prácticas de autocuidado: " + document.getElementById('creencias').value + "\n• Barreras: " + document.getElementById('construccion').value,
                     cierre: document.getElementById('cierreSesionCero').value,
                     firmaPaciente: firmaSesionCeroGlobal,
                     fechaFirmaPaciente: fechaFirmaSesionCeroGlobal,
