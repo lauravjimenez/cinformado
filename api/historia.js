@@ -52,7 +52,7 @@ async function crearPDFValidacionSesion(nombre, fecha, tarea, firmaB64, userAgen
 
     await dibujarLogo(pdfDoc, page, logoBytes, 45, margin);
 
-    page.drawText('Vincula', { x: margin, y, font: boldFont, size: 12, color: brandColor });
+    page.drawText('Psic. Laura Jiménez Rivero', { x: margin, y, font: boldFont, size: 12, color: brandColor });
     page.drawLine({ start: { x: margin, y: y - 10 }, end: { x: width - margin, y: y - 10 }, thickness: 1, color: brandColor });
     y -= 40;
 
@@ -128,7 +128,7 @@ async function crearPDFReciboCaja(nombre, fecha, valor, logoBytes) {
 
     await dibujarLogo(pdfDoc, page, logoBytes, 38, margin);
 
-    page.drawText('Vincula', { x: margin, y, font: boldFont, size: 16, color: brandColor });
+    page.drawText('Psic. Laura Jiménez Rivero', { x: margin, y, font: boldFont, size: 16, color: brandColor });
     y -= 20;
     page.drawText('TP: 216453', { x: margin, y, font: font, size: 10, color: rgb(0.4, 0.4, 0.4) });
     y -= 15;
@@ -400,26 +400,10 @@ export default async function handler(request, response) {
                 const logoBytes = await obtenerLogoBytes(request);
                 const pdfBuffer = await crearPDFReciboCaja(nombreSeguro, fechaFormat, valorRecibo, logoBytes);
 
-                const htmlCorreo = `
-                    <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eaeaea; border-radius: 10px; overflow: hidden;">
-                        <div style="background-color: #3B4D4D; padding: 20px; text-align: center;">
-                            <h2 style="color: white; margin: 0;">Comprobante de Pago Electrónico</h2>
-                        </div>
-                        <div style="padding: 30px;">
-                            <h3 style="color: #3B4D4D;">Confirmación de Recaudo</h3>
-                            <p>Hola <strong>${nombreSeguro}</strong>,</p>
-                            <p>Hemos registrado exitosamente el pago por los servicios profesionales de psicología correspondientes a la sesión del <strong>${fechaFormat}</strong>.</p>
-                            <div style="background-color: #f4f6f8; border-left: 4px solid #10b981; padding: 15px; margin: 20px 0;">
-                                <p style="margin: 0; font-size: 16px;"><strong>Valor Pagado:</strong> ${formatter.format(Number(valorRecibo))}</p>
-                            </div>
-                            <p>Adjunto a este correo encontrarás el documento PDF que sirve como soporte de este recaudo para tus registros financieros o reembolsos con entidades de salud complementaria si aplica.</p>
-                            <p style="font-size: 12px; color: #666; margin-top: 30px;">Vincula</p>
-                        </div>
-                    </div>
-                `;
+                const htmlCorreo = `<p>Estimado/a ${nombreSeguro},</p><p>Recibes tu comprobante de pago por los servicios profesionales en psicología correspondientes a la sesión del ${fechaFormat}.</p><p>Valor pagado: ${formatter.format(Number(valorRecibo))}.</p><p>Adjunto, encontrarás el PDF con el soporte de este pago para tus registros.</p>`
 
                 const { data: envioData, error: envioError } = await resend.emails.send({
-                    from: 'Vincula - Finanzas <psic@lauravjimenez.com>',
+                    from: 'Psic. Laura Jiménez Rivero - Finanzas <psic@lauravjimenez.com>',
                     to: emailPaciente,
                     bcc: 'psic@lauravjimenez.com',
                     subject: `Comprobante de Pago - Sesión ${fechaFormat}`,
