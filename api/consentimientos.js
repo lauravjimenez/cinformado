@@ -100,7 +100,7 @@ function setupPdfBuilder(pdfDoc, font, boldFont) {
 
     const drawSignature = async (base64Image, name, subtitle) => {
         checkPageBreak(90);
-        y -= 30; 
+        y -= 55; 
         try {
             const imageBytes = Buffer.from(base64Image.split(',')[1], 'base64');
             const pngImage = await pdfDoc.embedPng(imageBytes);
@@ -115,7 +115,7 @@ function setupPdfBuilder(pdfDoc, font, boldFont) {
 
     const drawDualSignatures = async (b64_1, name1, b64_2, name2) => {
         checkPageBreak(90);
-        y -= 30; 
+        y -= 55; 
         try {
             const img1Bytes = Buffer.from(b64_1.split(',')[1], 'base64');
             const png1 = await pdfDoc.embedPng(img1Bytes);
